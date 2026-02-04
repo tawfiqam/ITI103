@@ -22,29 +22,53 @@
 
     <script type="text/babel">
         function App() {
+            // NOTE: Ensure these 'file' names match exactly what you uploaded to GitHub
             const presentations = [
-                { title: "Lists & Dictionaries", week: "Week 3", file: "103Wk3listsdict.html", description: "Ordered collections and key-value pairs in Python." },
-                { title: "Lyrics Analyzer", week: "Week 4", file: "lyrics_analyzer.html", description: "Text processing, normalization, and word frequencies." },
-                { title: "Functions & Input", week: "Week 5", file: "functions.html", description: "Defining reusable code and handling user interaction." },
-                { title: "Randomness & Control", week: "Week 6", file: "randomness.html", description: "The random module and conditional decision making." }
+                { 
+                    title: "Lists & Dictionaries", 
+                    week: "Week 3", 
+                    file: "103Wk3listsdict.html", 
+                    description: "Mastering ordered collections, zero-based indexing, and key-value pairs." 
+                },
+                { 
+                    title: "Lyrics Analyzer", 
+                    week: "Week 4", 
+                    file: "lyrics_analyzer.html", 
+                    description: "Processing multiline strings, normalization, and word frequency dictionaries." 
+                },
+                { 
+                    title: "Functions & User Input", 
+                    week: "Week 5", 
+                    file: "functions.html", 
+                    description: "Defining reusable code, handling parameters, and processing user input." 
+                },
+                { 
+                    title: "Randomness & Logic", 
+                    week: "Week 6", 
+                    file: "randomness.html", 
+                    description: "Implementing the random module and conditional control flow." 
+                }
             ];
 
             return (
                 <div className="min-h-screen flex flex-col">
-                    {/* Header */}
+                    {/* Rutgers Branded Header */}
                     <header className="rutgers-scarlet text-white py-16 px-6 shadow-xl">
                         <div className="max-w-5xl mx-auto">
                             <h1 className="text-6xl font-black uppercase tracking-tighter">Tawfiq Ammari</h1>
                             <div className="h-1 w-24 bg-white my-6"></div>
                             <p className="text-3xl font-light opacity-90">
-                                ITI 103 — Introduction to Information Technology and Informatics
+                                ITI 103 — Intro to Information Technology and Informatics
                             </p>
                         </div>
                     </header>
 
-                    {/* Main Content */}
+                    {/* Dashboard Grid */}
                     <main className="flex-grow max-w-5xl w-full mx-auto py-16 px-6">
-                        <h2 className="text-4xl font-bold mb-12 border-b-4 rutgers-border inline-block">Weekly Presentations</h2>
+                        <div className="flex items-center justify-between mb-12">
+                            <h2 className="text-4xl font-bold border-b-4 rutgers-border inline-block">Course Presentations</h2>
+                            <span className="text-gray-400 font-mono text-sm">tawfiqam.github.io/ITI103/</span>
+                        </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {presentations.map((pres, index) => (
@@ -53,25 +77,35 @@
                                     href={pres.file} 
                                     className="block group"
                                 >
-                                    <div className="bg-white p-8 rounded-xl shadow-md border-l-8 rutgers-border card-hover border border-gray-100 h-full">
+                                    <div className="bg-white p-8 rounded-xl shadow-md border-l-8 rutgers-border card-hover border border-gray-100 h-full flex flex-col">
                                         <div className="flex justify-between items-start mb-4">
-                                            <span className="text-sm font-black rutgers-text uppercase tracking-widest">{pres.week}</span>
-                                            <svg className="w-6 h-6 text-gray-300 group-hover:rutgers-text transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                            <span className="text-xs font-black rutgers-text uppercase tracking-widest bg-red-50 px-2 py-1 rounded">
+                                                {pres.week}
+                                            </span>
+                                            <svg className="w-6 h-6 text-gray-300 group-hover:rutgers-text transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                                             </svg>
                                         </div>
-                                        <h3 className="text-3xl font-black mb-3 group-hover:rutgers-text transition-colors">{pres.title}</h3>
-                                        <p className="text-gray-600 text-xl">{pres.description}</p>
+                                        <h3 className="text-3xl font-black mb-3 group-hover:rutgers-text transition-colors leading-tight">
+                                            {pres.title}
+                                        </h3>
+                                        <p className="text-gray-600 text-lg flex-grow">
+                                            {pres.description}
+                                        </p>
+                                        <div className="mt-6 text-sm font-bold text-gray-400 uppercase tracking-widest group-hover:text-gray-900 transition-colors">
+                                            View Presentation →
+                                        </div>
                                     </div>
                                 </a>
                             ))}
                         </div>
                     </main>
 
-                    {/* Footer */}
-                    <footer className="bg-gray-900 text-gray-400 py-10 px-6 text-center text-lg">
+                    {/* Simple Footer */}
+                    <footer className="bg-white border-t border-gray-200 py-10 px-6 text-center text-gray-500">
                         <div className="max-w-5xl mx-auto">
-                            <p>&copy; {new Date().getFullYear()} Rutgers University - ITI Coursework</p>
+                            <p className="font-bold">Rutgers University SC&I</p>
+                            <p className="text-sm mt-1 uppercase tracking-tighter">Information Technology and Informatics</p>
                         </div>
                     </footer>
                 </div>
