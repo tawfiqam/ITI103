@@ -22,37 +22,37 @@
 
     <script type="text/babel">
         function App() {
-            // NOTE: Ensure these 'file' names match exactly what you uploaded to GitHub
+            // Reordered array: Week 6 is now positioned as Week 2
+            // Week 5 is moved to the final position
             const presentations = [
+                { 
+                    title: "Randomness & Logic", 
+                    week: "Week 2", 
+                    file: "https://tawfiqam.github.io/ITI103/103Wk2.html", 
+                    description: "Implementing the random module and conditional control flow." 
+                },
                 { 
                     title: "Lists & Dictionaries", 
                     week: "Week 3", 
-                    file: "103Wk3listsdict.html", 
+                    file: "https://tawfiqam.github.io/ITI103/103Wk3listsdict.html", 
                     description: "Mastering ordered collections, zero-based indexing, and key-value pairs." 
                 },
                 { 
                     title: "Lyrics Analyzer", 
                     week: "Week 4", 
-                    file: "lyrics_analyzer.html", 
+                    file: "https://tawfiqam.github.io/ITI103/103Wk3strings.html", 
                     description: "Processing multiline strings, normalization, and word frequency dictionaries." 
                 },
                 { 
                     title: "Functions & User Input", 
                     week: "Week 5", 
-                    file: "functions.html", 
+                    file: "https://tawfiqam.github.io/ITI103/103Wk4A.html", 
                     description: "Defining reusable code, handling parameters, and processing user input." 
-                },
-                { 
-                    title: "Randomness & Logic", 
-                    week: "Week 6", 
-                    file: "https://tawfiqam.github.io/ITI103/103Wk2.html", 
-                    description: "Implementing the random module and conditional control flow." 
                 }
             ];
 
             return (
                 <div className="min-h-screen flex flex-col">
-                    {/* Rutgers Branded Header */}
                     <header className="rutgers-scarlet text-white py-16 px-6 shadow-xl">
                         <div className="max-w-5xl mx-auto">
                             <h1 className="text-6xl font-black uppercase tracking-tighter">Tawfiq Ammari</h1>
@@ -63,11 +63,10 @@
                         </div>
                     </header>
 
-                    {/* Dashboard Grid */}
                     <main className="flex-grow max-w-5xl w-full mx-auto py-16 px-6">
                         <div className="flex items-center justify-between mb-12">
                             <h2 className="text-4xl font-bold border-b-4 rutgers-border inline-block">Course Presentations</h2>
-                            <span className="text-gray-400 font-mono text-sm">tawfiqam.github.io/ITI103/</span>
+                            <span className="text-gray-400 font-mono text-sm tracking-tight">tawfiqam.github.io/ITI103/</span>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -101,7 +100,6 @@
                         </div>
                     </main>
 
-                    {/* Simple Footer */}
                     <footer className="bg-white border-t border-gray-200 py-10 px-6 text-center text-gray-500">
                         <div className="max-w-5xl mx-auto">
                             <p className="font-bold">Rutgers University SC&I</p>
@@ -117,4 +115,3 @@
     </script>
 </body>
 </html>
-
