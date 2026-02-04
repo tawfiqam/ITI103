@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITI 103: Lists and Dictionaries</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Rutgers Scarlet: #cc0033 */
+        .rutgers-scarlet { background-color: #cc0033; }
+        .rutgers-text { color: #cc0033; }
+        .rutgers-border { border-color: #cc0033; }
+		
+		/* Global Text Size Increase */
+        html { font-size: 1.15rem; } 
+        body { line-height: 1.75; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const Slide = ({ title, children, slideNum, total, isTitle }) => (
+            <div className={`bg-white shadow-2xl rounded-lg overflow-hidden min-h-[600px] flex flex-col border-t-8 rutgers-border`}>
+                {!isTitle && (
+                    <div className="flex justify-between items-center p-6 border-b border-gray-100">
+                        <h2 className="text-2xl font-bold rutgers-text uppercase tracking-tight">{title}</h2>
+                        <span className="text-xs font-bold text-gray-400">ITI 103 | SLIDE {slideNum} OF {total}</span>
+                    </div>
+                )}
+                <div className={`flex-grow p-10 ${isTitle ? 'flex flex-col justify-center items-center text-center' : ''}`}>
+                    {children}
+                </div>
+                <div className="rutgers-scarlet h-3 w-full"></div>
+            </div>
+        );
+
+        const CodeBlock = ({ code, label }) => (
+            <div className="my-4">
+                {label && <div className="text-xs font-bold text-gray-500 mb-1 ml-1 uppercase">{label}</div>}
+                <pre className="bg-gray-900 text-red-400 p-5 rounded border-l-4 rutgers-border font-mono text-sm overflow-x-auto shadow-inner">
+                    {code}
+                </pre>
+            </div>
+        );
+
+        function App() {
+            const [currentSlide, setCurrentSlide] = useState(1);
+            const totalSlides = 17;
+
+            const next = () => currentSlide < totalSlides && setCurrentSlide(currentSlide + 1);
+            const prev = () => currentSlide > 1 && setCurrentSlide(currentSlide - 1);
+
+            return (
+                <div className="max-w-5xl mx-auto py-12 px-6">
+                    {currentSlide === 1 && (
+                        <Slide isTitle slideNum={1} total={totalSlides}>
+                            <div className="rutgers-scarlet text-white p-2 mb-6 text-sm font-bold tracking-widest uppercase">School of Communication and Information</div>
+                            <h1 className="text-5xl font-black text-gray-900 mb-4">ITI 103: Introduction to Lists and Dictionaries</h1>
+                            <div className="h-1 w-24 rutgers-scarlet mb-8"></div>
+                            <p className="text-2xl text-gray-700 font-medium">Tawfiq Ammari</p>
+                            <p className="text-xl text-gray-500 mt-2">Week 3</p>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 2 && (
+                        <Slide title="What is a Python List?" slideNum={2} total={totalSlides}>
+                            <p>A list is a fundamental data structure used to store an <strong>ordered collection</strong> of items.</p>
+                            <ul className="list-disc ml-8 mt-6 space-y-3">
+                                <li><strong>Mutable:</strong> You can change its contents after creation.</li>
+                                <li><strong>Ordered:</strong> It remembers the sequence of elements.</li>
+                                <li><strong>Dynamic:</strong> It can grow or shrink as you add or remove data.</li>
+                            </ul>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 3 && (
+                        <Slide title="Basic List Example" slideNum={3} total={totalSlides}>
+                            <p>To create a list, wrap items in square brackets <code>[]</code>:</p>
+                            <CodeBlock label="Python Code" code={`fruits = ["Apple", "Banana", "Cherry", "Date"]\nprint(type(fruits))  # <class 'list'>`} />
+                            <p className="text-sm text-gray-500 italic mt-4">This example uses four items as required by the lecture exercise.</p>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 4 && (
+                        <Slide title="Finding Items by Index" slideNum={4} total={totalSlides}>
+                            <p>Use the index (position) to pull data out. Remember: counting starts at <strong>0</strong>.</p>
+                            
+                            <CodeBlock label="Indexing Examples" code={`# Positive indexing\nprint(fruits[0])   # "Apple"\nprint(fruits[2])   # "Cherry"\n\n# Negative indexing (from the end)\nprint(fruits[-1])  # "Date"`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 5 && (
+                        <Slide title="Adding to Lists: .append()" slideNum={5} total={totalSlides}>
+                            <p>The <code>.append()</code> method adds a single item to the <strong>very end</strong> of the list.</p>
+                            <CodeBlock code={`fruits = ["Apple", "Banana"]\nfruits.append("Cherry")\n\nprint(fruits) # ["Apple", "Banana", "Cherry"]`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 6 && (
+                        <Slide title="Adding to Lists: .insert()" slideNum={6} total={totalSlides}>
+                            <p>The <code>.insert(index, value)</code> method puts an item at a <strong>specific spot</strong>.</p>
+                            <CodeBlock code={`fruits = ["Apple", "Cherry"]\nfruits.insert(1, "Banana")\n\nprint(fruits) # ["Apple", "Banana", "Cherry"]`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 7 && (
+                        <Slide title="Adding to Lists: .extend()" slideNum={7} total={totalSlides}>
+                            <p>The <code>.extend()</code> method merges <strong>another list</strong> into yours.</p>
+                            <CodeBlock code={`fruits = ["Apple"]\nfruits.extend(["Banana", "Cherry"])\n\nprint(fruits) # ["Apple", "Banana", "Cherry"]`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 8 && (
+                        <Slide title="Removing from Lists: .remove()" slideNum={8} total={totalSlides}>
+                            <p>The <code>.remove()</code> method deletes an item by its <strong>value</strong>.</p>
+                            <CodeBlock code={`fruits = ["Apple", "Banana", "Cherry"]\nfruits.remove("Banana")\n\nprint(fruits) # ["Apple", "Cherry"]`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 9 && (
+                        <Slide title="Removing from Lists: .pop()" slideNum={9} total={totalSlides}>
+                            <p>The <code>.pop()</code> method removes an item by its <strong>index</strong> and returns it.</p>
+                            <CodeBlock code={`fruits = ["Apple", "Banana", "Cherry"]\nremoved = fruits.pop(1) # Removes "Banana"`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 10 && (
+                        <Slide title="Definition of a Dictionary Key" slideNum={10} total={totalSlides}>
+                            <p>A <strong>Key</strong> is a unique label used to retrieve a value from a dictionary.</p>
+                            <ul className="list-disc ml-8 mt-6 space-y-3">
+                                <li><strong>Format:</strong> Must be a string or integer.</li>
+                                <li><strong>Unique:</strong> Keys cannot be duplicated.</li>
+                                <li><strong>Mapping:</strong> Tied directly to a value.</li>
+                            </ul>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 11 && (
+                        <Slide title="Basic Dictionary Example" slideNum={11} total={totalSlides}>
+                            <p>Dictionaries use curly braces <code>{"{}"}</code> and <code>key:value</code> pairs.</p>
+                            <CodeBlock label="Code" code={`record = {\n    "source": "caesar@romanempire.mil",\n    "target": "mark_antony@romanempire.mil",\n    "content": "ATTACK AT DAWN"\n}`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 12 && (
+                        <Slide title="Retrieving from Dictionaries" slideNum={12} total={totalSlides}>
+                            <p>Access values using the key name inside square brackets.</p>
+                            <CodeBlock code={`print(record["content"]) # "ATTACK AT DAWN"`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 13 && (
+                        <Slide title="Adding to Dictionaries" slideNum={13} total={totalSlides}>
+                            <p>Assign a value to a <strong>new key</strong> to add it to the collection.</p>
+                            <CodeBlock code={`record["date"] = "0044-03-15"\n# record is now updated with the date key`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 14 && (
+                        <Slide title="Adding/Updating: .update()" slideNum={14} total={totalSlides}>
+                            <p>Update multiple entries at once using <code>.update()</code>.</p>
+                            <CodeBlock code={`record.update({"priority": "High", "status": "Sent"})`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 15 && (
+                        <Slide title="Removing from Dictionaries: del" slideNum={15} total={totalSlides}>
+                            <p>The <code>del</code> keyword removes a specific key-value pair.</p>
+                            <CodeBlock code={`del record["target"]`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 16 && (
+                        <Slide title="Lists vs. Dictionaries" slideNum={16} total={totalSlides}>
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                <div className="p-4 bg-gray-50 border-l-4 rutgers-border">
+                                    <h3 className="font-bold rutgers-text">List</h3>
+                                    <p className="text-sm mt-2 italic">Ordered. Accessed by Index.</p>
+                                </div>
+                                <div className="p-4 bg-gray-50 border-l-4 rutgers-border">
+                                    <h3 className="font-bold rutgers-text">Dictionary</h3>
+                                    <p className="text-sm mt-2 italic">Unordered mapping. Accessed by Key.</p>
+                                </div>
+                            </div>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 17 && (
+                        <Slide title="When to use which?" slideNum={17} total={totalSlides}>
+                            <div className="space-y-4">
+                                <p><strong>Use Lists:</strong> For sequential data where order matters (e.g., a ranking or a checklist).</p>
+                                <p><strong>Use Dictionaries:</strong> For data that needs a label for quick lookup (e.g., a phonebook or a user profile).</p>
+                            </div>
+                        </Slide>
+                    )}
+
+                    <div className="flex justify-between mt-8 items-center">
+                        <button 
+                            onClick={prev} 
+                            disabled={currentSlide === 1}
+                            className="bg-gray-200 text-gray-700 px-8 py-3 rounded disabled:opacity-30 hover:bg-gray-300 font-bold uppercase tracking-widest text-xs transition"
+                        >
+                            Back
+                        </button>
+                        <div className="flex gap-1">
+                            {[...Array(totalSlides)].map((_, i) => (
+                                <div key={i} className={`h-1 w-4 ${currentSlide === i+1 ? 'rutgers-scarlet' : 'bg-gray-300'}`}></div>
+                            ))}
+                        </div>
+                        <button 
+                            onClick={next} 
+                            disabled={currentSlide === totalSlides}
+                            className="rutgers-scarlet text-white px-8 py-3 rounded disabled:opacity-30 hover:opacity-90 font-bold uppercase tracking-widest text-xs transition shadow-lg"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
