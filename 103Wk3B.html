@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITI 103: Lists and Dictionaries Masterclass</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .rutgers-scarlet { background-color: #cc0033; }
+        .rutgers-text { color: #cc0033; }
+        .rutgers-border { border-color: #cc0033; }
+        html { font-size: 1.4rem; } 
+        body { line-height: 1.6; }
+        .code-text { font-family: 'Courier New', Courier, monospace; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const Slide = ({ title, children, slideNum, total, isTitle }) => (
+            <div className="bg-white shadow-2xl rounded-lg overflow-hidden min-h-[700px] flex flex-col border-t-[12px] rutgers-border">
+                {!isTitle && (
+                    <div className="flex justify-between items-center p-8 border-b border-gray-100">
+                        <h2 className="text-4xl font-black rutgers-text uppercase tracking-tight">{title}</h2>
+                        <span className="text-sm font-bold text-gray-400">ITI 103 | {slideNum} / {total}</span>
+                    </div>
+                )}
+                <div className={`flex-grow p-12 ${isTitle ? 'flex flex-col justify-center items-center text-center' : ''}`}>
+                    {children}
+                </div>
+                <div className="rutgers-scarlet h-4 w-full"></div>
+            </div>
+        );
+
+        const CodeBlock = ({ code, label }) => (
+            <div className="my-6">
+                {label && <div className="text-sm font-bold text-gray-500 mb-2 ml-1 uppercase">{label}</div>}
+                <pre className="bg-gray-900 text-green-400 p-8 rounded-xl border-l-8 rutgers-border font-mono text-2xl overflow-x-auto shadow-2xl">
+                    {code}
+                </pre>
+            </div>
+        );
+
+        function App() {
+            const [currentSlide, setCurrentSlide] = useState(1);
+            const totalSlides = 12;
+
+            const next = () => currentSlide < totalSlides && setCurrentSlide(currentSlide + 1);
+            const prev = () => currentSlide > 1 && setCurrentSlide(currentSlide - 1);
+
+            return (
+                <div className="max-w-6xl mx-auto py-12 px-6">
+                    {currentSlide === 1 && (
+                        <Slide isTitle slideNum={1} total={totalSlides}>
+                            <div className="rutgers-scarlet text-white p-3 mb-8 text-lg font-bold tracking-[0.2em] uppercase">Rutgers ITI 103</div>
+                            <h1 className="text-7xl font-black text-gray-900 mb-6 leading-tight">Lists, Dictionaries & Logic</h1>
+                            <div className="h-2 w-32 rutgers-scarlet mb-10"></div>
+                            <p className="text-3xl text-gray-700 font-medium">Chapter Mastery & Practice</p>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 2 && (
+                        <Slide title="Python Lists" slideNum={2} total={totalSlides}>
+                            <p className="text-3xl mb-8 font-bold text-gray-800">Lists are ordered collections using square brackets <code className="text-red-600">[]</code>.</p>
+                            <ul className="list-disc ml-10 space-y-6 text-2xl">
+                                <li><strong>Versatile:</strong> Store <code className="text-blue-600">int, float, bool, string</code>.</li>
+                                <li><strong>Zero-Based:</strong> Accessing <code className="text-red-600">list[0]</code> returns the <strong>first</strong> item.</li>
+                                <li><strong>Length:</strong> Find total items with <code className="text-red-600">len(my_list)</code>.</li>
+                                <li><strong>Boolean Literals:</strong> Python uses <code className="text-red-600">True</code> and <code className="text-red-600">False</code>.</li>
+                            </ul>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 3 && (
+                        <Slide title="Modifying Lists" slideNum={3} total={totalSlides}>
+                            <div className="space-y-6 text-2xl">
+                                <div className="p-6 bg-gray-50 border-l-8 border-blue-500">
+                                    <strong>.append("item")</strong>: Adds to the very end.
+                                </div>
+                                <div className="p-6 bg-gray-50 border-l-8 border-green-500">
+                                    <strong>.insert(1, "item")</strong>: Puts item at specific index (pushes others right).
+                                </div>
+                                <div className="p-6 bg-gray-50 border-l-8 border-red-500">
+                                    <strong>del my_list[2]</strong>: Removes the item at index 2.
+                                </div>
+                                <p className="mt-8 italic text-gray-600">Why index 1 for the 2nd item? Because Python starts counting at 0!</p>
+                            </div>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 4 && (
+                        <Slide title="Iteration & Loops" slideNum={4} total={totalSlides}>
+                            <p className="text-2xl mb-4">Process items directly with <code className="rutgers-text font-bold">for</code> loops:</p>
+                            <CodeBlock code={`for movie in fav_movies:\n    print(movie)\n\n# To loop exactly 10 times:\nfor i in range(10):\n    print(i)`} />
+                            <p className="text-2xl mt-4"><strong>Math in Loops:</strong> Use parentheses <code className="text-red-600">()</code> to control order of operations.</p>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 5 && (
+                        <Slide title="The Dictionary Structure" slideNum={5} total={totalSlides}>
+                            <p className="text-2xl mb-6 font-bold">Key-Value pairs using curly braces <code className="text-red-600">{"{}"}</code>.</p>
+                            <ul className="list-disc ml-10 space-y-4 text-2xl">
+                                <li>Keys and Values are separated by a <strong>colon (:)</strong>.</li>
+                                <li>Access values by key: <code className="text-red-600">dog_ages["bentley"]</code>.</li>
+                                <li><strong>Case Sensitivity:</strong> <code className="text-red-600">"Darlita"</code> is NOT the same as <code className="text-red-600">"darlita"</code>. Accessing a missing key causes an error.</li>
+                            </ul>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 6 && (
+                        <Slide title="Dictionary Operations" slideNum={6} total={totalSlides}>
+                            <CodeBlock label="Adding and Removing" code={`# Syntax for empty dictionary\nmy_dict = {}\n\n# Adding/Updating\ndog_ages["bentley"] = 12\n\n# Removing\ndel dog_ages["bentley"]`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 7 && (
+                        <Slide title="Logic: Modulo & Accumulators" slideNum={7} total={totalSlides}>
+                            <div className="grid grid-cols-2 gap-8">
+                                <div className="bg-red-50 p-8 rounded-lg">
+                                    <h3 className="text-3xl font-bold mb-4">Even Check</h3>
+                                    <p className="text-2xl">A number is even if <br/><code className="text-red-600">number % 2 == 0</code></p>
+                                </div>
+                                <div className="bg-gray-50 p-8 rounded-lg">
+                                    <h3 className="text-3xl font-bold mb-4">Accumulator</h3>
+                                    <p className="text-2xl">Use a variable like <code className="text-red-600">total = 0</code> and add to it inside a loop.</p>
+                                </div>
+                            </div>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 8 && (
+                        <Slide title="Knowledge Check" slideNum={8} total={totalSlides}>
+                            <div className="space-y-6 text-2xl">
+                                <p><strong>Q:</strong> Syntax for empty list? <span className="text-red-600 font-bold">[]</span></p>
+                                <p><strong>Q:</strong> Syntax for empty dict? <span className="text-red-600 font-bold">{"{}"}</span></p>
+                                <p><strong>Q:</strong> Get length of <code className="bg-gray-100 p-1">fav_movies</code>? <span className="text-red-600 font-bold">len(fav_movies)</span></p>
+                                <p><strong>Q:</strong> Add "Batman" to index 1? <span className="text-red-600 font-bold">fav_movies.insert(1, "Batman")</span></p>
+                            </div>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 9 && (
+                        <Slide title="Practice 1: Student Todo" slideNum={9} total={totalSlides}>
+                             <CodeBlock code={`todo = ["Eat", "Sleep", "Code"]\ntodo.insert(1, "practice python")\ntodo.append("study hard")\n\nprint(todo)\nprint(len(todo))`} />
+                             <p className="text-2xl mt-4 text-gray-600">This inserts into the 2nd slot and adds to the end.</p>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 10 && (
+                        <Slide title="Practice 2: Even Sales Sum" slideNum={10} total={totalSlides}>
+                            <CodeBlock code={`daily_sales = [62, 66, 94, 97, 25, 11, 68, 54, 48, 67]\ntotal = 0\n\nfor sale in daily_sales:\n    if sale % 2 == 0:\n        total += sale\n\nprint(total) # Result: 392`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 11 && (
+                        <Slide title="Practice 3: Team Dictionary" slideNum={11} total={totalSlides}>
+                            <CodeBlock code={`team_ages = {"Ana": 20, "Ben": 21, "Chia": 19}\n\nteam_ages["Dee"] = 22\ndel team_ages["Ben"]\n\nprint(len(team_ages))\nprint(team_ages["Ana"])`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 12 && (
+                        <Slide isTitle slideNum={12} total={totalSlides}>
+                            <h2 className="text-6xl font-black rutgers-text mb-6">Review Complete</h2>
+                            <p className="text-3xl text-gray-700">Practice makes perfect. Go Rutgers!</p>
+                        </Slide>
+                    )}
+
+                    <div className="flex justify-between mt-12 items-center">
+                        <button 
+                            onClick={prev} 
+                            disabled={currentSlide === 1}
+                            className="bg-gray-300 text-gray-800 px-10 py-5 rounded-lg disabled:opacity-20 hover:bg-gray-400 font-black uppercase tracking-widest text-lg transition"
+                        >
+                            Previous
+                        </button>
+                        <div className="flex gap-2">
+                            {[...Array(totalSlides)].map((_, i) => (
+                                <div key={i} className={`h-2 w-6 ${currentSlide === i+1 ? 'rutgers-scarlet' : 'bg-gray-300'}`}></div>
+                            ))}
+                        </div>
+                        <button 
+                            onClick={next} 
+                            disabled={currentSlide === totalSlides}
+                            className="rutgers-scarlet text-white px-10 py-5 rounded-lg disabled:opacity-20 hover:opacity-90 font-black uppercase tracking-widest text-lg transition shadow-2xl"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

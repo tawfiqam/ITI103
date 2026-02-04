@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITI 103: Lyrics Analyzer Project</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .rutgers-scarlet { background-color: #cc0033; }
+        .rutgers-text { color: #cc0033; }
+        .rutgers-border { border-color: #cc0033; }
+        html { font-size: 1.4rem; } 
+        body { line-height: 1.6; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const Slide = ({ title, children, slideNum, total, isTitle }) => (
+            <div className="bg-white shadow-2xl rounded-lg overflow-hidden min-h-[700px] flex flex-col border-t-[12px] rutgers-border">
+                {!isTitle && (
+                    <div className="flex justify-between items-center p-8 border-b border-gray-100">
+                        <h2 className="text-4xl font-black rutgers-text uppercase tracking-tight">{title}</h2>
+                        <span className="text-sm font-bold text-gray-400">LAB: LYRICS ANALYZER | {slideNum} / {total}</span>
+                    </div>
+                )}
+                <div className={`flex-grow p-12 ${isTitle ? 'flex flex-col justify-center items-center text-center' : ''}`}>
+                    {children}
+                </div>
+                <div className="rutgers-scarlet h-4 w-full"></div>
+            </div>
+        );
+
+        const CodeBlock = ({ code, label }) => (
+            <div className="my-6">
+                {label && <div className="text-sm font-bold text-gray-500 mb-2 ml-1 uppercase">{label}</div>}
+                <pre className="bg-gray-900 text-yellow-400 p-8 rounded-xl border-l-8 rutgers-border font-mono text-2xl overflow-x-auto shadow-2xl">
+                    {code}
+                </pre>
+            </div>
+        );
+
+        function App() {
+            const [currentSlide, setCurrentSlide] = useState(1);
+            const totalSlides = 10;
+
+            const next = () => currentSlide < totalSlides && setCurrentSlide(currentSlide + 1);
+            const prev = () => currentSlide > 1 && setCurrentSlide(currentSlide - 1);
+
+            return (
+                <div className="max-w-6xl mx-auto py-12 px-6">
+                    {currentSlide === 1 && (
+                        <Slide isTitle slideNum={1} total={totalSlides}>
+                            <div className="rutgers-scarlet text-white p-3 mb-8 text-lg font-bold tracking-[0.2em] uppercase">Python for Non-Programmers</div>
+                            <h1 className="text-7xl font-black text-gray-900 mb-6 leading-tight">Lyrics Analyzer Project</h1>
+                            <div className="h-2 w-32 rutgers-scarlet mb-10"></div>
+                            <p className="text-3xl text-gray-700 font-medium italic">Text Processing & Word Frequency</p>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 2 && (
+                        <Slide title="Handling Big Text" slideNum={2} total={totalSlides}>
+                            <p className="text-3xl mb-8 font-bold text-gray-800">Use Triple Quotes for Multi-line Strings.</p>
+                            <CodeBlock code={`lyrics = """\nFour score and seven years ago\nour fathers brought forth\non this continent...\n"""`} />
+                            <ul className="list-disc ml-10 space-y-6 text-2xl mt-6">
+                                <li>Enclosing text in <strong>triple quotes</strong> allows for line breaks.</li>
+                                <li><code>len(text)</code> returns the number of <strong>characters</strong>, including spaces.</li>
+                            </ul>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 3 && (
+                        <Slide title="Cleaning & Splitting" slideNum={3} total={totalSlides}>
+                            <p className="text-2xl mb-6">Before analyzing, we must <strong>normalize</strong> the data.</p>
+                            <div className="grid grid-cols-2 gap-8">
+                                <div className="bg-gray-50 p-6 border-l-4 rutgers-border">
+                                    <h3 className="font-bold text-2xl mb-2">.lower()</h3>
+                                    <p className="text-xl">Ensures "The" and "the" are treated as the same word.</p>
+                                </div>
+                                <div className="bg-gray-50 p-6 border-l-4 rutgers-border">
+                                    <h3 className="font-bold text-2xl mb-2">.split()</h3>
+                                    <p className="text-xl">Turns a string into a <strong>list</strong> of words by breaking at whitespace.</p>
+                                </div>
+                            </div>
+                            <CodeBlock code={`words = lyrics.lower().split()`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 4 && (
+                        <Slide title="The Word Frequency Logic" slideNum={4} total={totalSlides}>
+                            <p className="text-2xl mb-4">How a dictionary counts items:</p>
+                            <ol className="list-decimal ml-10 space-y-4 text-2xl">
+                                <li>Start with an <strong>empty dictionary</strong> <code>{"{}"}</code>.</li>
+                                <li>Iterate through the word list.</li>
+                                <li>If the word exists as a <strong>Key</strong>, increment its <strong>Value</strong>.</li>
+                                <li>Else, create the key and set the value to 1.</li>
+                            </ol>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 5 && (
+                        <Slide title="Building the Analyzer" slideNum={5} total={totalSlides}>
+                            <CodeBlock label="The Frequency Loop" code={`word_count = {}\nfor word in words:\n    if word in word_count:\n        word_count[word] += 1\n    else:\n        word_count[word] = 1`} />
+                            <p className="text-2xl mt-6">Keys = <strong>Unique Words</strong><br/>Values = <strong>Integer Counts</strong></p>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 6 && (
+                        <Slide title="Concept Review" slideNum={6} total={totalSlides}>
+                            <div className="space-y-6 text-2xl">
+                                <p><strong>Q:</strong> Multi-line string syntax? <span className="text-red-600 font-bold">""" """</span></p>
+                                <p><strong>Q:</strong> Default behavior of <code className="bg-gray-100">.split()</code>? <span className="text-red-600 font-bold">Splits on whitespace</span></p>
+                                <p><strong>Q:</strong> Dictionary structure? <span className="text-red-600 font-bold">{"{Key: Value}"}</span></p>
+                                <p><strong>Q:</strong> Function for list size? <span className="text-red-600 font-bold">len()</span></p>
+                            </div>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 7 && (
+                        <Slide title="Practice 1: Lyrics Overview" slideNum={7} total={totalSlides}>
+                            <p className="text-2xl mb-4">Calculating basic stats:</p>
+                            <CodeBlock code={`# Total Characters\nprint(len(lyrics))\n\n# Total Words\nwords = lyrics.split()\nprint(len(words))\n\n# First 10 Words\nprint(words[:10])`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 8 && (
+                        <Slide title="Practice 2: Case-Insensitive" slideNum={8} total={totalSlides}>
+                            <p className="text-2xl mb-4">Finding unique word counts:</p>
+                            <CodeBlock code={`text = """My lyrics..."""\nwords = text.lower().split()\ncounts = {}\n\n# ... (loop logic here) ...\n\nprint(len(counts)) # Unique word count`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 9 && (
+                        <Slide title="Practice 3: User Lookup" slideNum={9} total={totalSlides}>
+                            <p className="text-2xl mb-4">Prompting for a specific frequency:</p>
+                            <CodeBlock code={`term = input("Enter a word: ").lower()\n\nif term in word_count:\n    print(f"{term} appears {word_count[term]} times")\nelse:\n    print("Word not found.")`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 10 && (
+                        <Slide isTitle slideNum={10} total={totalSlides}>
+                            <h2 className="text-6xl font-black rutgers-text mb-6">Lab Goals Achieved</h2>
+                            <p className="text-3xl text-gray-700">You can now normalize text, split strings, and build frequency dictionaries.</p>
+                            <div className="h-2 w-32 rutgers-scarlet mt-8"></div>
+                        </Slide>
+                    )}
+
+                    <div className="flex justify-between mt-12 items-center">
+                        <button 
+                            onClick={prev} 
+                            disabled={currentSlide === 1}
+                            className="bg-gray-300 text-gray-800 px-10 py-5 rounded-lg disabled:opacity-20 hover:bg-gray-400 font-black uppercase tracking-widest text-lg transition"
+                        >
+                            Back
+                        </button>
+                        <div className="flex gap-2">
+                            {[...Array(totalSlides)].map((_, i) => (
+                                <div key={i} className={`h-2 w-6 ${currentSlide === i+1 ? 'rutgers-scarlet' : 'bg-gray-300'}`}></div>
+                            ))}
+                        </div>
+                        <button 
+                            onClick={next} 
+                            disabled={currentSlide === totalSlides}
+                            className="rutgers-scarlet text-white px-10 py-5 rounded-lg disabled:opacity-20 hover:opacity-90 font-black uppercase tracking-widest text-lg transition shadow-2xl"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
