@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Naming Conventions & Error Examples</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #581c87 50%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .animate-bounce {
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(16px);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #9333ea 0%, #ec4899 100%);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .window-dots {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #f87171; }
+        .dot-yellow { background: #fbbf24; }
+        .dot-green { background: #4ade80; }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: rgba(233, 213, 255, 1);
+        }
+
+        .dad-joke {
+            background: linear-gradient(90deg, rgba(234, 179, 8, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%);
+            border-left: 4px solid #fbbf24;
+            padding: 1rem;
+            margin: 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .dad-joke-icon {
+            color: #fcd34d;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .dad-joke-text {
+            color: #fef3c7;
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .examples-box {
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid;
+        }
+
+        .good-box {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+
+        .bad-box {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .box-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .box-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .good-box h3 { color: #86efac; }
+        .bad-box h3 { color: #fca5a5; }
+
+        .icon {
+            width: 28px;
+            height: 28px;
+        }
+
+        .example {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .example:hover {
+            transform: translateX(8px);
+            box-shadow: -4px 4px 0 rgba(168, 85, 247, 0.4);
+        }
+
+        .good-box .example { border: 1px solid rgba(34, 197, 94, 0.3); }
+        .bad-box .example { border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .good-box .code { color: #86efac; }
+        .bad-box .code { color: #fca5a5; }
+
+        .desc {
+            color: #d1d5db;
+            font-size: 0.875rem;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .tip {
+            background: rgba(30, 41, 59, 0.5);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .tip:hover {
+            border-color: rgba(168, 85, 247, 0.4);
+        }
+
+        .tip-emoji {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .tip-text {
+            color: #e5e7eb;
+        }
+
+        .intro {
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .intro-emoji {
+            font-size: 6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .intro-text {
+            font-size: 1.5rem;
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+
+        .intro-subtext {
+            font-size: 1.125rem;
+            color: #9ca3af;
+        }
+
+        .note {
+            background: rgba(59, 130, 246, 0.2);
+            border-left: 4px solid #60a5fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .note-text {
+            color: #bfdbfe;
+            font-weight: 500;
+        }
+
+        .navigation {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 2px solid rgba(168, 85, 247, 0.3);
+        }
+
+        button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+        }
+
+        button:not(:disabled) {
+            background: #9333ea;
+            color: white;
+        }
+
+        button:not(:disabled):hover {
+            background: #7e22ce;
+            transform: scale(1.05);
+        }
+
+        button:not(:disabled):active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            background: #374151;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .indicators {
+            display: flex;
+            gap: 8px;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4b5563;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicator:hover {
+            background: #6b7280;
+        }
+
+        .indicator.active {
+            background: #9333ea;
+            width: 32px;
+            border-radius: 6px;
+        }
+
+        .slide-counter {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 12px 24px;
+            text-align: center;
+        }
+
+        .counter-text {
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="window-dots">
+                    <div class="dot dot-red"></div>
+                    <div class="dot dot-yellow"></div>
+                    <div class="dot dot-green"></div>
+                </div>
+                <h1 id="slide-title" class="animate-slide-in">Python Naming Conventions</h1>
+                <p id="slide-subtitle" class="subtitle animate-slide-in">Write Code Your Future Self Won't Hate</p>
+            </div>
+        </div>
+
+        <!-- Dad Joke -->
+        <div class="dad-joke animate-fade-in">
+            <div class="dad-joke-icon">💡</div>
+            <p id="dad-joke-text" class="dad-joke-text">Why do Python programmers prefer dark mode? Because light attracts bugs! 🐛</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div id="slide-content"></div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button id="prev-btn" onclick="prevSlide()">
+                <span>←</span> Previous
+            </button>
+
+            <div class="indicators" id="indicators"></div>
+
+            <button id="next-btn" onclick="nextSlide()">
+                Next <span>→</span>
+            </button>
+        </div>
+
+        <!-- Counter -->
+        <div class="slide-counter">
+            <p class="counter-text">Slide <span id="current-slide">1</span> of <span id="total-slides">20</span></p>
+        </div>
+    </div>
+
+    <script>
+        const slides = [
+            {
+                title: "Python Naming Conventions",
+                subtitle: "Write Code Your Future Self Won't Hate",
+                dadJoke: "Why do Python programmers prefer dark mode? Because light attracts bugs! 🐛",
+                type: "intro"
+            },
+            {
+                title: "Variables & Functions",
+                subtitle: "snake_case is your friend",
+                dadJoke: "What's a snake's favorite programming style? snake_case, obviously! 🐍",
+                type: "examples",
+                good: [
+                    { code: "user_name = 'Alice'", desc: "Clear, readable" },
+                    { code: "calculate_total_price()", desc: "Describes action" },
+                    { code: "is_valid = True", desc: "Boolean with is_ prefix" },
+                    { code: "MAX_CONNECTIONS = 100", desc: "Constant in UPPER_CASE" }
+                ],
+                bad: [
+                    { code: "UserName = 'Alice'", desc: "That's for classes!" },
+                    { code: "calculateTotalPrice()", desc: "Wrong! This is camelCase" },
+                    { code: "x = True", desc: "What does x mean?" },
+                    { code: "max_connections = 100", desc: "Constants should be UPPER" }
+                ]
+            },
+            {
+                title: "Classes",
+                subtitle: "CapWords (PascalCase) Convention",
+                dadJoke: "Why did the class go to therapy? It had too many issues to inherit! 😅",
+                type: "examples",
+                good: [
+                    { code: "class UserAccount:", desc: "Clear, descriptive" },
+                    { code: "class HTTPResponse:", desc: "Acronyms in caps" },
+                    { code: "class ShoppingCart:", desc: "Two words, both capitalized" },
+                    { code: "class DatabaseConnection:", desc: "Readable compound name" }
+                ],
+                bad: [
+                    { code: "class user_account:", desc: "Use CapWords, not snake_case!" },
+                    { code: "class httpresponse:", desc: "Acronyms should be HTTP" },
+                    { code: "class shoppingcart:", desc: "Hard to read without caps" },
+                    { code: "class DB_Connection:", desc: "Don't mix styles" }
+                ]
+            },
+            {
+                title: "Private & Protected",
+                subtitle: "Underscores Matter",
+                dadJoke: "Why do Python variables use underscores? They're just trying to stay grounded! ⚡",
+                type: "examples",
+                good: [
+                    { code: "def _internal_helper():", desc: "Single underscore = internal" },
+                    { code: "self._cache = {}", desc: "Protected attribute" },
+                    { code: "def __private_method():", desc: "Double underscore = private" },
+                    { code: "def public_method():", desc: "No underscore = public" }
+                ],
+                bad: [
+                    { code: "def __helper():", desc: "Overkill for simple helper" },
+                    { code: "self.cache_ = {}", desc: "Trailing underscore only for conflicts" },
+                    { code: "def ___method():", desc: "Triple underscore? That's not a thing!" },
+                    { code: "def _PublicMethod():", desc: "Contradictory naming" }
+                ]
+            },
+            {
+                title: "Module & Package Names",
+                subtitle: "Short, lowercase, simple",
+                dadJoke: "Why are modules always lowercase? They're trying to stay humble! 🙏",
+                type: "examples",
+                good: [
+                    { code: "import utils", desc: "Simple, lowercase" },
+                    { code: "import dataprocessor", desc: "One word preferred" },
+                    { code: "import data_processor", desc: "Underscore if needed" },
+                    { code: "from myapp import core", desc: "Clear hierarchy" }
+                ],
+                bad: [
+                    { code: "import Utils", desc: "No capitals in modules!" },
+                    { code: "import DataProcessor", desc: "This isn't a class name" },
+                    { code: "import data-processor", desc: "Hyphens break imports!" },
+                    { code: "import myApp", desc: "Keep it all lowercase" }
+                ]
+            },
+            {
+                title: "Method Names",
+                subtitle: "Be Descriptive, Be Consistent",
+                dadJoke: "What do you call a method that does nothing? A placeholder! And it's probably still better than 'doStuff()' 😄",
+                type: "examples",
+                good: [
+                    { code: "def get_user_by_id(user_id):", desc: "Clear action + object" },
+                    { code: "def save_to_database():", desc: "Verb phrase" },
+                    { code: "def is_authenticated():", desc: "Boolean returns is_/has_" },
+                    { code: "def calculate_discount(price):", desc: "Descriptive verb" }
+                ],
+                bad: [
+                    { code: "def GetUser(id):", desc: "Wrong case for Python!" },
+                    { code: "def data():", desc: "Verb? Noun? Who knows!" },
+                    { code: "def authenticated():", desc: "Use is_authenticated()" },
+                    { code: "def calc(p):", desc: "Too abbreviated" }
+                ]
+            },
+            {
+                title: "Naming Anti-Patterns",
+                subtitle: "Common Mistakes to Avoid",
+                dadJoke: "Why did the variable get a speeding ticket? It had too many vague abbreviations! 🚗💨",
+                type: "examples",
+                good: [
+                    { code: "user_count", desc: "Clear meaning" },
+                    { code: "temporary_file", desc: "No need for 'temp'" },
+                    { code: "index", desc: "Standard iterator name" },
+                    { code: "customer_list", desc: "Explicit collection type" }
+                ],
+                bad: [
+                    { code: "usrCnt", desc: "Over-abbreviated" },
+                    { code: "tmp", desc: "What is this?" },
+                    { code: "i, j, k, l", desc: "l looks like 1!" },
+                    { code: "data", desc: "Too generic, what data?" }
+                ]
+            },
+            {
+                title: "Special Cases",
+                subtitle: "The Exceptions to Know",
+                dadJoke: "Why do Pythonistas love exceptions? Because rules are meant to be... handled! 🎯",
+                type: "examples",
+                good: [
+                    { code: "class MyClass:", desc: "CapWords for classes" },
+                    { code: "from typing import TypeVar", desc: "Type variables in CapWords" },
+                    { code: "PI = 3.14159", desc: "Module-level constants" },
+                    { code: "_ = get_unused_value()", desc: "_ for intentionally unused" }
+                ],
+                bad: [
+                    { code: "__init__", desc: "Actually GOOD! Dunder methods are special" },
+                    { code: "__name__", desc: "Also GOOD! Magic attributes" },
+                    { code: "super().__init__()", desc: "GOOD! Standard Python pattern" },
+                    { code: "self.__dict__", desc: "GOOD! Built-in attribute access" }
+                ],
+                note: "These 'bad' examples are actually CORRECT! They're special Python conventions."
+            },
+            {
+                title: "Real-World Example",
+                subtitle: "Putting It All Together",
+                dadJoke: "Why did the Python developer break up with their code? Too much coupling, not enough cohesion! 💔",
+                type: "examples",
+                good: [
+                    { code: "class UserAuthentication:\n    def __init__(self, db_connection):\n        self._db = db_connection\n        self.max_attempts = 3\n    \n    def validate_credentials(self, username, password):\n        return self._check_password(username, password)\n    \n    def _check_password(self, username, password):\n        # Private helper method\n        pass", desc: "Clean, consistent naming throughout" }
+                ],
+                bad: [
+                    { code: "class userAuth:\n    def __init__(self, DB):\n        self.DB = DB\n        self.maxAttempts = 3\n    \n    def ValidateCredentials(self, usr, pwd):\n        return self.CheckPwd(usr, pwd)\n    \n    def CheckPwd(self, usr, pwd):\n        # What's public? What's private?\n        pass", desc: "Inconsistent styles, unclear visibility" }
+                ]
+            },
+            {
+                title: "Remember: PEP 8",
+                subtitle: "Your Guide to Python Style",
+                dadJoke: "Why do Python devs love PEP 8? Because life's too short for ugly code! ✨",
+                type: "tips",
+                tips: [
+                    { emoji: "📖", text: "Variables & Functions: snake_case" },
+                    { emoji: "🏛️", text: "Classes: CapWords (PascalCase)" },
+                    { emoji: "📦", text: "Modules: lowercase, short" },
+                    { emoji: "🔒", text: "Private: _single_leading_underscore" },
+                    { emoji: "🎯", text: "Constants: UPPER_CASE_WITH_UNDERSCORES" },
+                    { emoji: "💡", text: "Be descriptive over being brief" },
+                    { emoji: "🤝", text: "Consistency beats perfection" },
+                    { emoji: "📚", text: "Read PEP 8 at python.org/dev/peps/pep-0008/" }
+                ]
+            },
+            {
+                title: "Syntax Errors",
+                subtitle: "When Python Can't Even Parse Your Code",
+                dadJoke: "Why did the Python code go to therapy? It had unresolved parentheses issues! 😅",
+                type: "examples",
+                good: [
+                    { code: "if temperature > 30:\n    print('Hot!')", desc: "Proper indentation and colon" },
+                    { code: "my_list = [1, 2, 3, 4, 5]", desc: "Matching brackets" },
+                    { code: "result = (10 + 5) * 2", desc: "Balanced parentheses" },
+                    { code: "name = 'Alice'  # String quotes match", desc: "Consistent quote usage" }
+                ],
+                bad: [
+                    { code: "if temperature > 30\n    print('Hot!')", desc: "❌ Missing colon after if statement" },
+                    { code: "my_list = [1, 2, 3, 4, 5", desc: "❌ Unclosed bracket - SyntaxError!" },
+                    { code: "result = (10 + 5 * 2", desc: "❌ Missing closing parenthesis" },
+                    { code: "name = 'Alice\"", desc: "❌ Mismatched quotes - won't run!" }
+                ]
+            },
+            {
+                title: "More Syntax Errors",
+                subtitle: "Common Gotchas That Stop Execution",
+                dadJoke: "What's a Python programmer's least favorite punctuation? The missing one! 🔍",
+                type: "examples",
+                good: [
+                    { code: "def calculate_sum(a, b):\n    return a + b", desc: "Function defined correctly" },
+                    { code: "for i in range(5):\n    print(i)", desc: "Proper loop syntax with colon" },
+                    { code: "x = 10  # Assignment with single =", desc: "Correct assignment operator" },
+                    { code: "import math\nimport random", desc: "Valid import statements" }
+                ],
+                bad: [
+                    { code: "def calculate_sum(a, b)\n    return a + b", desc: "❌ Missing colon after function definition" },
+                    { code: "for i in range(5)\nprint(i)", desc: "❌ Missing colon and wrong indentation" },
+                    { code: "if x == 10\n    print(x)", desc: "❌ Missing colon - Python won't run this" },
+                    { code: "import math random", desc: "❌ Can't import multiple modules on one line like this" }
+                ]
+            },
+            {
+                title: "Semantic Errors",
+                subtitle: "Code Runs But Does The Wrong Thing",
+                dadJoke: "Why did the semantic error go unnoticed? Because it was logically incorrect but syntactically perfect! 🤔",
+                type: "examples",
+                good: [
+                    { code: "age = 25\nif age >= 18:\n    print('Adult')", desc: "Correct logic for checking adult age" },
+                    { code: "total = price * quantity", desc: "Correct multiplication for total" },
+                    { code: "for i in range(len(items)):\n    print(items[i])", desc: "Valid index access" },
+                    { code: "average = sum(scores) / len(scores)", desc: "Correct average calculation" }
+                ],
+                bad: [
+                    { code: "age = 25\nif age > 18:\n    print('Adult')", desc: "❌ Logic error: 18-year-olds aren't adults here!" },
+                    { code: "total = price + quantity", desc: "❌ Adding instead of multiplying - wrong result!" },
+                    { code: "for i in range(len(items) + 1):\n    print(items[i])", desc: "❌ Will crash! IndexError on last iteration" },
+                    { code: "average = sum(scores) / 2", desc: "❌ Logic error: dividing by 2 instead of count" }
+                ]
+            },
+            {
+                title: "Type-Related Semantic Errors",
+                subtitle: "When Types Don't Match Your Intent",
+                dadJoke: "Why did the string break up with the integer? Type incompatibility! 💔",
+                type: "examples",
+                good: [
+                    { code: "age = 25\nage_str = str(age)\nprint('Age: ' + age_str)", desc: "Convert to string before concatenating" },
+                    { code: "numbers = [1, 2, 3]\ntotal = sum(numbers)", desc: "sum() works on list of numbers" },
+                    { code: "result = 10 / 3  # Returns float", desc: "Division gives expected float result" },
+                    { code: "name = input('Name: ')\nprint(f'Hello {name}')", desc: "input() returns string - perfect!" }
+                ],
+                bad: [
+                    { code: "age = 25\nprint('Age: ' + age)", desc: "❌ TypeError: can't concatenate str and int!" },
+                    { code: "numbers = '123'\ntotal = sum(numbers)", desc: "❌ TypeError: sum() needs numbers, not string!" },
+                    { code: "result = 10 / '3'", desc: "❌ TypeError: can't divide int by string!" },
+                    { code: "age = input('Age: ')\nif age > 18:\n    print('Adult')", desc: "❌ Comparing string to int - unexpected behavior!" }
+                ]
+            },
+            {
+                title: "Style Errors (PEP 8)",
+                subtitle: "Code Works But Hurts Readability",
+                dadJoke: "Why did the code reviewer cry? Too many style violations and not enough tissues! 😢",
+                type: "examples",
+                good: [
+                    { code: "def calculate_total(price, quantity):\n    return price * quantity", desc: "Proper spacing and naming" },
+                    { code: "x = 10\ny = 20\nresult = x + y", desc: "One statement per line" },
+                    { code: "if is_valid and is_active:\n    process_user()", desc: "Clear boolean logic" },
+                    { code: "# Calculate the total price\ntotal = price * quantity", desc: "Helpful comment above code" }
+                ],
+                bad: [
+                    { code: "def calculateTotal(price,quantity):\n  return price*quantity", desc: "❌ camelCase, no spaces, wrong indentation" },
+                    { code: "x=10;y=20;result=x+y", desc: "❌ Multiple statements, no spaces around operators" },
+                    { code: "if is_valid==True and is_active==True:\n    process_user()", desc: "❌ Redundant == True comparisons" },
+                    { code: "total=price*quantity # Calculate the total price", desc: "❌ Inline comment, no spaces around =" }
+                ]
+            },
+            {
+                title: "Indentation Style Errors",
+                subtitle: "Python's Most Sacred Rule",
+                dadJoke: "Why do Python programmers prefer spaces? Because tabs are just too pressing of an issue! 🎹",
+                type: "examples",
+                good: [
+                    { code: "def greet(name):\n    if name:\n        print(f'Hello {name}')\n    else:\n        print('Hello stranger')", desc: "Consistent 4-space indentation" },
+                    { code: "for i in range(3):\n    for j in range(2):\n        print(f'{i}, {j}')", desc: "Nested loops properly indented" },
+                    { code: "class User:\n    def __init__(self):\n        self.name = ''\n        self.age = 0", desc: "Class methods properly indented" },
+                    { code: "try:\n    risky_operation()\nexcept Exception:\n    handle_error()", desc: "Try-except with correct indentation" }
+                ],
+                bad: [
+                    { code: "def greet(name):\n  if name:\n      print(f'Hello {name}')\n   else:\n        print('Hello stranger')", desc: "❌ Inconsistent indentation - 2, 4, 3, and 4 spaces!" },
+                    { code: "for i in range(3):\nfor j in range(2):\nprint(f'{i}, {j}')", desc: "❌ No indentation - IndentationError!" },
+                    { code: "class User:\ndef __init__(self):\nself.name = ''\nself.age = 0", desc: "❌ No indentation in class - won't work!" },
+                    { code: "try:\n  risky_operation()\n    except Exception:\n  handle_error()", desc: "❌ Mixed indentation and wrong except alignment" }
+                ]
+            },
+            {
+                title: "Line Length & Import Style",
+                subtitle: "Keep It Readable",
+                dadJoke: "Why did the import statement break up? It had too many dependencies on one line! 📦",
+                type: "examples",
+                good: [
+                    { code: "import os\nimport sys\nimport json", desc: "Separate imports on different lines" },
+                    { code: "from collections import (\n    Counter,\n    defaultdict,\n    OrderedDict\n)", desc: "Long imports split across lines" },
+                    { code: "# Line under 79 characters\nresult = calculate_price(\n    base_price, tax_rate, discount\n)", desc: "Long function calls split properly" },
+                    { code: "message = (\n    'This is a very long string '\n    'that has been split across '\n    'multiple lines for readability'\n)", desc: "Long strings split with implicit concatenation" }
+                ],
+                bad: [
+                    { code: "import os, sys, json, random, datetime, collections, itertools, functools", desc: "❌ Too many imports on one line - hard to read!" },
+                    { code: "from collections import Counter, defaultdict, OrderedDict, deque, ChainMap, UserDict", desc: "❌ Import line too long - should be split!" },
+                    { code: "result = calculate_price(base_price, tax_rate, discount, shipping_cost, handling_fee, insurance, gift_wrap, express_delivery)", desc: "❌ Line way over 79 characters - unreadable!" },
+                    { code: "message = 'This is a very long string that goes on and on and on without any line breaks making it hard to read and maintain'", desc: "❌ String too long - should be split!" }
+                ]
+            },
+            {
+                title: "Whitespace & Operator Style",
+                subtitle: "Spacing Matters For Readability",
+                dadJoke: "Why did the operator feel lonely? Because nobody gave it any space! 😔",
+                type: "examples",
+                good: [
+                    { code: "x = 5\ny = 10\nresult = x + y", desc: "Spaces around assignment and operators" },
+                    { code: "my_list = [1, 2, 3, 4, 5]", desc: "Space after commas in list" },
+                    { code: "def func(a, b, c=None):\n    return a + b", desc: "Space after commas, no space around =" },
+                    { code: "result = heavy_calculation(\n    param1, param2\n)", desc: "No trailing whitespace" }
+                ],
+                bad: [
+                    { code: "x=5\ny=10\nresult=x+y", desc: "❌ No spaces around operators - cramped!" },
+                    { code: "my_list = [1,2,3,4,5]", desc: "❌ No spaces after commas - hard to read!" },
+                    { code: "def func(a , b , c = None):\n    return a+b", desc: "❌ Inconsistent spacing around commas and =" },
+                    { code: "result = heavy_calculation(\n    param1, param2   \n)", desc: "❌ Trailing whitespace - style violation!" }
+                ]
+            },
+            {
+                title: "Error Prevention Tips",
+                subtitle: "Write Better Code From The Start",
+                dadJoke: "Why did the programmer quit their job? Too many bugs and not enough features! 🐛",
+                type: "tips",
+                tips: [
+                    { emoji: "🔍", text: "Use a linter like pylint or flake8" },
+                    { emoji: "🎨", text: "Use code formatters like black or autopep8" },
+                    { emoji: "✅", text: "Enable type hints for semantic error prevention" },
+                    { emoji: "🧪", text: "Write unit tests to catch semantic errors early" },
+                    { emoji: "📝", text: "Use an IDE with syntax highlighting" },
+                    { emoji: "👥", text: "Do code reviews to catch style issues" },
+                    { emoji: "🔄", text: "Run your code frequently while developing" },
+                    { emoji: "📚", text: "Read error messages carefully - they're helpful!" }
+                ]
+            }
+        ];
+
+        let currentSlide = 0;
+
+        function renderSlide() {
+            const slide = slides[currentSlide];
+            
+            // Update header
+            document.getElementById('slide-title').textContent = slide.title;
+            document.getElementById('slide-subtitle').textContent = slide.subtitle;
+            document.getElementById('dad-joke-text').textContent = slide.dadJoke;
+            
+            // Update content
+            const contentDiv = document.getElementById('slide-content');
+            
+            if (slide.type === 'intro') {
+                contentDiv.innerHTML = `
+                    <div class="intro">
+                        <div class="intro-emoji animate-bounce">🐍</div>
+                        <p class="intro-text">Let's explore Python naming conventions</p>
+                        <p class="intro-subtext">with examples and terrible dad jokes!</p>
+                    </div>
+                `;
+            } else if (slide.type === 'examples') {
+                let html = '<div class="grid">';
+                
+                // Good examples
+                html += '<div class="examples-box good-box"><div class="box-header">';
+                html += '<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #86efac;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                html += '<h3>Do This ✅</h3></div>';
+                
+                slide.good.forEach(item => {
+                    html += `<div class="example">
+                        <code class="code">${item.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>
+                        <p class="desc">${item.desc}</p>
+                    </div>`;
+                });
+                html += '</div>';
+                
+                // Bad examples
+                html += '<div class="examples-box bad-box"><div class="box-header">';
+                html += '<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #fca5a5;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                html += '<h3>Don\'t Do This ❌</h3></div>';
+                
+                slide.bad.forEach(item => {
+                    html += `<div class="example">
+                        <code class="code">${item.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>
+                        <p class="desc">${item.desc}</p>
+                    </div>`;
+                });
+                html += '</div></div>';
+                
+                // Add note if present
+                if (slide.note) {
+                    html += `<div class="note"><p class="note-text">💡 ${slide.note}</p></div>`;
+                }
+                
+                contentDiv.innerHTML = html;
+            } else if (slide.type === 'tips') {
+                let html = '<div class="tips-grid">';
+                slide.tips.forEach(tip => {
+                    html += `<div class="tip">
+                        <span class="tip-emoji">${tip.emoji}</span>
+                        <p class="tip-text">${tip.text}</p>
+                    </div>`;
+                });
+                html += '</div>';
+                contentDiv.innerHTML = html;
+            }
+            
+            // Update navigation
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            document.getElementById('next-btn').disabled = currentSlide === slides.length - 1;
+            
+            // Update indicators
+            const indicatorsDiv = document.getElementById('indicators');
+            indicatorsDiv.innerHTML = '';
+            slides.forEach((_, index) => {
+                const indicator = document.createElement('div');
+                indicator.className = 'indicator' + (index === currentSlide ? ' active' : '');
+                indicator.onclick = () => goToSlide(index);
+                indicatorsDiv.appendChild(indicator);
+            });
+            
+            // Update counter
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            document.getElementById('total-slides').textContent = slides.length;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                renderSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                renderSlide();
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            renderSlide();
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+
+        // Initialize
+        renderSlide();
+    </script>
+</body>
+</html>
