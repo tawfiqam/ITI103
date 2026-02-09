@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Nested Lists Presentation</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState } = React;
+
+    function Presentation() {
+      const [currentSlide, setCurrentSlide] = useState(0);
+
+      const slides = [
+        {
+          title: "Solve the following problem...",
+          content: (
+            <div className="problem-slide">
+              <div className="instruction">
+                <p>Create a list called <code>matrix</code> that "looks" like this:</p>
+                <div className="code-block">
+                  [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+                </div>
+              </div>
+              
+              <div className="instruction">
+                <p>Access and display the second element in <code>matrix</code>:</p>
+                <div className="code-block">
+                  [4, 5, 6]
+                </div>
+              </div>
+              
+              <div className="instruction">
+                <p>Access and display the number 5 from the nested list.</p>
+              </div>
+            </div>
+          )
+        },
+        {
+          title: "How to write and use code comments",
+          content: (
+            <div className="comments-slide">
+              <div className="point">
+                <span className="number">1.</span>
+                <p>State your intentions in a code comment.</p>
+              </div>
+              
+              <div className="point">
+                <span className="number">2.</span>
+                <div>
+                  <p>Good comments accurately finish this sentence:</p>
+                  <div className="quote">"This chuck of code will..."</div>
+                </div>
+              </div>
+              
+              <div className="point">
+                <span className="number">3.</span>
+                <p>"Solve" each part of the problem using comments, and then fill in the rest with expressions.</p>
+              </div>
+            </div>
+          )
+        },
+        {
+          title: "Solve the following problem...",
+          content: (
+            <div className="combined-slide">
+              <div className="left-column">
+                <p>Create a list called <code>matrix</code> that "looks" like this:</p>
+                <div className="code-block small">
+                  [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+                </div>
+                
+                <p>Access and display the second element in <code>matrix</code>:</p>
+                <div className="code-block small">
+                  [4, 5, 6]
+                </div>
+                
+                <p>Access and display the number 5 from the nested list.</p>
+              </div>
+              
+              <div className="right-column">
+                <div className="instruction-box">
+                  <p className="instruction-title">State your intentions in a code comment.</p>
+                  
+                  <p className="instruction-quote">"This chuck of code will..."</p>
+                  
+                  <p className="instruction-title">"Solve" each part in comments then in code.</p>
+                </div>
+              </div>
+            </div>
+          )
+        },
+        {
+          title: "Solution",
+          content: (
+            <div className="solution-slide">
+              <div className="solution-code">
+                <div className="code-line comment"># This code will create a nested list called matrix</div>
+                <div className="code-line">matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]</div>
+                <div className="code-line empty"></div>
+                <div className="code-line comment"># This code will access and display the second element</div>
+                <div className="code-line">print(matrix[1])</div>
+                <div className="code-line output"># Output: [4, 5, 6]</div>
+                <div className="code-line empty"></div>
+                <div className="code-line comment"># This code will access and display the number 5</div>
+                <div className="code-line">print(matrix[1][1])</div>
+                <div className="code-line output"># Output: 5</div>
+              </div>
+              <div className="key-insight">
+                <div className="insight-title">💡 Key Insight</div>
+                <div className="insight-text">
+                  <code>matrix[1]</code> gets the second row (index 1)<br/>
+                  <code>matrix[1][1]</code> gets the second element of the second row
+                </div>
+              </div>
+            </div>
+          )
+        },
+        {
+          title: "Where are we now?",
+          content: (
+            <div className="summary-slide">
+              <div className="point">
+                <span className="number">1.</span>
+                <p>We have a "comments-first" process for solving problems with code</p>
+              </div>
+              
+              <div className="point">
+                <span className="number">2.</span>
+                <p>and some basic tools and techniques</p>
+              </div>
+              
+              <div className="point">
+                <span className="number">3.</span>
+                <p>We still need to practice, practice, practice...</p>
+              </div>
+              
+              <div className="point">
+                <span className="number">4.</span>
+                <p>...especially if we cannot write neat code on paper.</p>
+              </div>
+              
+              <div className="meme-replacement">
+                <p className="meme-text">💭 Remember: Statements are executed, comments are not!</p>
+              </div>
+            </div>
+          )
+        }
+      ];
+
+      const nextSlide = () => {
+        if (currentSlide < slides.length - 1) {
+          setCurrentSlide(currentSlide + 1);
+        }
+      };
+
+      const prevSlide = () => {
+        if (currentSlide > 0) {
+          setCurrentSlide(currentSlide - 1);
+        }
+      };
+
+      return (
+        <div className="presentation">
+          <style>{`
+            @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Mono:wght@400;700&family=Syne:wght@600;800&display=swap');
+            
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
+            body {
+              overflow: hidden;
+            }
+            
+            .presentation {
+              width: 100vw;
+              height: 100vh;
+              background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+              color: #e2e8f0;
+              font-family: 'Space Mono', monospace;
+              display: flex;
+              flex-direction: column;
+              position: relative;
+              overflow: hidden;
+            }
+            
+            .presentation::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: 
+                linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+                linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+              background-size: 50px 50px;
+              pointer-events: none;
+              animation: gridMove 20s linear infinite;
+            }
+            
+            @keyframes gridMove {
+              0% { transform: translate(0, 0); }
+              100% { transform: translate(50px, 50px); }
+            }
+            
+            .slide-container {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              padding: 2rem 3rem;
+              position: relative;
+              z-index: 1;
+              animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            
+            @keyframes slideIn {
+              from {
+                opacity: 0;
+                transform: translateY(30px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            
+            .slide-title {
+              font-family: 'Syne', sans-serif;
+              font-size: 2.5rem;
+              font-weight: 800;
+              margin-bottom: 1.5rem;
+              color: #38bdf8;
+              text-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+              animation: titleFloat 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+            }
+            
+            @keyframes titleFloat {
+              from {
+                opacity: 0;
+                transform: translateX(-20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateX(0);
+              }
+            }
+            
+            .slide-content {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              animation: contentFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+            }
+            
+            @keyframes contentFade {
+              from {
+                opacity: 0;
+              }
+              to {
+                opacity: 1;
+              }
+            }
+            
+            .problem-slide .instruction {
+              margin-bottom: 1.5rem;
+            }
+            
+            .problem-slide p {
+              font-size: 1.1rem;
+              line-height: 1.6;
+              margin-bottom: 0.6rem;
+              color: #cbd5e1;
+            }
+            
+            code {
+              background: rgba(56, 189, 248, 0.1);
+              padding: 0.2rem 0.5rem;
+              border-radius: 4px;
+              font-family: 'JetBrains Mono', monospace;
+              color: #7dd3fc;
+              border: 1px solid rgba(56, 189, 248, 0.2);
+              font-size: 0.95rem;
+            }
+            
+            .code-block {
+              background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
+              padding: 1rem 1.5rem;
+              border-radius: 12px;
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 1.1rem;
+              color: #22d3ee;
+              border: 2px solid rgba(34, 211, 238, 0.3);
+              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+              margin: 0.6rem 0;
+              transition: all 0.3s ease;
+            }
+            
+            .code-block:hover {
+              border-color: rgba(34, 211, 238, 0.6);
+              box-shadow: 0 12px 48px rgba(34, 211, 238, 0.2);
+              transform: translateY(-2px);
+            }
+            
+            .code-block.small {
+              font-size: 0.95rem;
+              padding: 0.8rem 1rem;
+            }
+            
+            .comments-slide .point {
+              display: flex;
+              gap: 1rem;
+              margin-bottom: 1.5rem;
+              align-items: flex-start;
+            }
+            
+            .point .number {
+              font-family: 'Syne', sans-serif;
+              font-size: 1.5rem;
+              font-weight: 800;
+              color: #38bdf8;
+              min-width: 2.5rem;
+              text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            }
+            
+            .point p {
+              font-size: 1.1rem;
+              line-height: 1.6;
+              color: #cbd5e1;
+              margin: 0;
+            }
+            
+            .quote {
+              background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(34, 211, 238, 0.1) 100%);
+              padding: 0.8rem 1.2rem;
+              border-left: 4px solid #38bdf8;
+              margin-top: 0.6rem;
+              font-style: italic;
+              color: #7dd3fc;
+              font-size: 1.05rem;
+              border-radius: 0 8px 8px 0;
+            }
+            
+            .combined-slide {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 2rem;
+              height: 100%;
+            }
+            
+            .left-column p {
+              font-size: 1rem;
+              margin-bottom: 0.6rem;
+              color: #cbd5e1;
+            }
+            
+            .right-column {
+              display: flex;
+              align-items: center;
+            }
+            
+            .instruction-box {
+              background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+              padding: 1.5rem;
+              border-radius: 16px;
+              border: 2px solid rgba(239, 68, 68, 0.3);
+              box-shadow: 0 8px 32px rgba(239, 68, 68, 0.2);
+            }
+            
+            .instruction-title {
+              font-size: 1.05rem;
+              color: #fca5a5;
+              font-weight: 700;
+              margin-bottom: 1rem;
+              line-height: 1.5;
+            }
+            
+            .instruction-quote {
+              background: rgba(15, 23, 42, 0.5);
+              padding: 0.8rem 1.2rem;
+              border-radius: 8px;
+              font-style: italic;
+              color: #fecaca;
+              margin-bottom: 1rem;
+              border-left: 3px solid #ef4444;
+              font-size: 0.95rem;
+            }
+            
+            .summary-slide .point {
+              margin-bottom: 1.5rem;
+            }
+            
+            .meme-replacement {
+              margin-top: 2rem;
+              padding: 1.5rem;
+              background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+              border: 2px solid rgba(168, 85, 247, 0.3);
+              border-radius: 12px;
+              text-align: center;
+            }
+            
+            .meme-text {
+              font-size: 1.2rem;
+              color: #c4b5fd;
+              font-weight: 700;
+            }
+            
+            .solution-slide {
+              display: flex;
+              flex-direction: column;
+              gap: 2rem;
+            }
+            
+            .solution-code {
+              background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
+              padding: 1.5rem;
+              border-radius: 12px;
+              border: 2px solid rgba(34, 211, 238, 0.3);
+              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            }
+            
+            .code-line {
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 1rem;
+              line-height: 1.8;
+              color: #e2e8f0;
+              padding: 0.2rem 0;
+            }
+            
+            .code-line.comment {
+              color: #64748b;
+              font-style: italic;
+            }
+            
+            .code-line.output {
+              color: #86efac;
+              padding-left: 2rem;
+            }
+            
+            .code-line.empty {
+              height: 0.5rem;
+            }
+            
+            .key-insight {
+              background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+              padding: 1.5rem;
+              border-radius: 12px;
+              border: 2px solid rgba(168, 85, 247, 0.3);
+            }
+            
+            .insight-title {
+              font-family: 'Syne', sans-serif;
+              font-size: 1.3rem;
+              font-weight: 700;
+              color: #c4b5fd;
+              margin-bottom: 1rem;
+            }
+            
+            .insight-text {
+              font-size: 1rem;
+              line-height: 1.8;
+              color: #cbd5e1;
+            }
+            
+            .insight-text code {
+              background: rgba(168, 85, 247, 0.2);
+              border-color: rgba(168, 85, 247, 0.3);
+              color: #e9d5ff;
+            }
+            
+            .navigation {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 1.5rem 3rem;
+              background: rgba(15, 23, 42, 0.8);
+              border-top: 1px solid rgba(56, 189, 248, 0.2);
+              position: relative;
+              z-index: 2;
+            }
+            
+            .nav-button {
+              background: linear-gradient(135deg, #38bdf8 0%, #22d3ee 100%);
+              color: #0f172a;
+              border: none;
+              padding: 0.6rem 1.5rem;
+              font-family: 'Syne', sans-serif;
+              font-size: 0.9rem;
+              font-weight: 700;
+              border-radius: 8px;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              box-shadow: 0 4px 16px rgba(56, 189, 248, 0.3);
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+            
+            .nav-button:hover:not(:disabled) {
+              transform: translateY(-2px);
+              box-shadow: 0 8px 24px rgba(56, 189, 248, 0.5);
+            }
+            
+            .nav-button:active:not(:disabled) {
+              transform: translateY(0);
+            }
+            
+            .nav-button:disabled {
+              opacity: 0.3;
+              cursor: not-allowed;
+            }
+            
+            .slide-indicator {
+              display: flex;
+              gap: 0.5rem;
+            }
+            
+            .dot {
+              width: 12px;
+              height: 12px;
+              border-radius: 50%;
+              background: rgba(56, 189, 248, 0.3);
+              transition: all 0.3s ease;
+              cursor: pointer;
+            }
+            
+            .dot.active {
+              background: #38bdf8;
+              box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
+              transform: scale(1.2);
+            }
+            
+            .dot:hover {
+              background: rgba(56, 189, 248, 0.6);
+            }
+          `}</style>
+          
+          <div className="slide-container" key={currentSlide}>
+            <h1 className="slide-title">{slides[currentSlide].title}</h1>
+            <div className="slide-content">
+              {slides[currentSlide].content}
+            </div>
+          </div>
+          
+          <div className="navigation">
+            <button 
+              className="nav-button" 
+              onClick={prevSlide}
+              disabled={currentSlide === 0}
+            >
+              ← Previous
+            </button>
+            
+            <div className="slide-indicator">
+              {slides.map((_, index) => (
+                <div 
+                  key={index}
+                  className={`dot ${index === currentSlide ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(index)}
+                />
+              ))}
+            </div>
+            
+            <button 
+              className="nav-button" 
+              onClick={nextSlide}
+              disabled={currentSlide === slides.length - 1}
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Presentation />);
+  </script>
+</body>
+</html>
