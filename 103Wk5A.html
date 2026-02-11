@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITI 103: For and While Loops</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .rutgers-scarlet { background-color: #cc0033; }
+        .rutgers-text { color: #cc0033; }
+        .rutgers-border { border-color: #cc0033; }
+        html { font-size: 1.4rem; } 
+        body { line-height: 1.6; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const Slide = ({ title, children, slideNum, total, isTitle }) => (
+            <div className="bg-white shadow-2xl rounded-lg overflow-hidden min-h-[700px] flex flex-col border-t-[12px] rutgers-border">
+                {!isTitle && (
+                    <div className="flex justify-between items-center p-8 border-b border-gray-100">
+                        <h2 className="text-4xl font-black rutgers-text uppercase tracking-tight">{title}</h2>
+                        <span className="text-sm font-bold text-gray-400">ITI 103 | {slideNum} / {total}</span>
+                    </div>
+                )}
+                <div className={`flex-grow p-12 ${isTitle ? 'flex flex-col justify-center items-center text-center' : ''}`}>
+                    {children}
+                </div>
+                <div className="rutgers-scarlet h-4 w-full"></div>
+            </div>
+        );
+
+        const CodeBlock = ({ code, label }) => (
+            <div className="my-6">
+                {label && <div className="text-sm font-bold text-gray-500 mb-2 ml-1 uppercase">{label}</div>}
+                <pre className="bg-gray-900 text-cyan-400 p-8 rounded-xl border-l-8 rutgers-border font-mono text-2xl overflow-x-auto shadow-2xl">
+                    {code}
+                </pre>
+            </div>
+        );
+
+        function App() {
+            const [currentSlide, setCurrentSlide] = useState(1);
+            const totalSlides = 12;
+
+            const next = () => currentSlide < totalSlides && setCurrentSlide(currentSlide + 1);
+            const prev = () => currentSlide > 1 && setCurrentSlide(currentSlide - 1);
+
+            return (
+                <div className="max-w-6xl mx-auto py-12 px-6">
+                    {currentSlide === 1 && (
+                        <Slide isTitle slideNum={1} total={totalSlides}>
+                            <div className="rutgers-scarlet text-white p-3 mb-8 text-lg font-bold tracking-[0.2em] uppercase">Rutgers School of Communication and Information</div>
+                            <h1 className="text-7xl font-black text-gray-900 mb-6 leading-tight">For and While Loops</h1>
+                            <div className="h-2 w-32 rutgers-scarlet mb-10"></div>
+                            <p className="text-3xl text-gray-700 font-medium italic">Repeating Actions in Python</p>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 2 && (
+                        <Slide title="Introduction to For Loops" slideNum={2} total={totalSlides}>
+                            <p className="text-2xl mb-6">For loops let you repeat code for each item in a sequence.</p>
+                            <CodeBlock code={`# Loop through a list\nfruits = ["apple", "banana", "cherry"]\n\nfor fruit in fruits:\n    print(f"I love {fruit}!")`} />
+                            <ul className="list-disc ml-10 space-y-4 text-xl mt-6">
+                                <li>Use <strong>for</strong> keyword followed by a variable name and <strong>in</strong></li>
+                                <li>The variable takes on each value in the sequence</li>
+                                <li>Code inside the loop must be <strong>indented</strong></li>
+                            </ul>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 3 && (
+                        <Slide title="For Loops with Range" slideNum={3} total={totalSlides}>
+                            <p className="text-2xl mb-6">The <strong>range()</strong> function generates a sequence of numbers.</p>
+                            <CodeBlock code={`# Print numbers 0 to 4\nfor i in range(5):\n    print(i)\n\n# Print numbers 1 to 5\nfor i in range(1, 6):\n    print(i)\n\n# Count by 2s\nfor i in range(0, 10, 2):\n    print(i)  # 0, 2, 4, 6, 8`} />
+                            <p className="text-xl mt-6">range(start, stop, step) - stop is exclusive!</p>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 4 && (
+                        <Slide title="While Loops" slideNum={4} total={totalSlides}>
+                            <p className="text-2xl mb-6">While loops repeat as long as a condition is <strong>True</strong>.</p>
+                            <CodeBlock code={`count = 0\n\nwhile count < 5:\n    print(f"Count is {count}")\n    count += 1  # Increment by 1\n\nprint("Loop finished!")`} />
+                            <ul className="list-disc ml-10 space-y-4 text-xl mt-6">
+                                <li><strong>Warning:</strong> Make sure the condition eventually becomes False!</li>
+                                <li>Otherwise you'll create an <strong>infinite loop</strong></li>
+                            </ul>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 5 && (
+                        <Slide title="Loops in Functions" slideNum={5} total={totalSlides}>
+                            <p className="text-2xl mb-6">Functions can contain loops to process data.</p>
+                            <CodeBlock code={`def print_squares(n):\n    """Print squares from 1 to n"""\n    for i in range(1, n + 1):\n        print(f"{i} squared is {i ** 2}")\n\nprint_squares(5)`} />
+                            <CodeBlock code={`def sum_numbers(numbers):\n    """Return sum of all numbers in list"""\n    total = 0\n    for num in numbers:\n        total += num\n    return total\n\nresult = sum_numbers([1, 2, 3, 4, 5])\nprint(result)  # 15`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 6 && (
+                        <Slide title="Building a List with Loops" slideNum={6} total={totalSlides}>
+                            <p className="text-2xl mb-6">Loops can create new lists from existing data.</p>
+                            <CodeBlock code={`def get_evens(numbers):\n    """Return list of even numbers"""\n    evens = []\n    for num in numbers:\n        if num % 2 == 0:\n            evens.append(num)\n    return evens\n\nmy_nums = [1, 2, 3, 4, 5, 6, 7, 8]\neven_nums = get_evens(my_nums)\nprint(even_nums)  # [2, 4, 6, 8]`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 7 && (
+                        <Slide title="Introduction to Dictionaries" slideNum={7} total={totalSlides}>
+                            <p className="text-2xl mb-6">Dictionaries store key-value pairs for fast lookups.</p>
+                            <CodeBlock code={`# Create a dictionary\nstudent = {\n    "name": "Alex",\n    "age": 20,\n    "major": "CS"\n}\n\n# Access values\nprint(student["name"])  # Alex\n\n# Add/modify entries\nstudent["gpa"] = 3.8\n\n# Check if key exists\nif "age" in student:\n    print(f"Age: {student['age']}")`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 8 && (
+                        <Slide title="Word Counter Function" slideNum={8} total={totalSlides}>
+                            <p className="text-2xl mb-6">Use a dictionary to count word frequencies in text.</p>
+                            <CodeBlock code={`def count_words(text):\n    """Count frequency of each word"""\n    words = text.lower().split()\n    word_count = {}\n    \n    for word in words:\n        if word in word_count:\n            word_count[word] += 1\n        else:\n            word_count[word] = 1\n    \n    return word_count\n\nsentence = "the cat and the dog"\ncounts = count_words(sentence)\nprint(counts)\n# {'the': 2, 'cat': 1, 'and': 1, 'dog': 1}`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 9 && (
+                        <Slide title="Printing Dictionary Contents" slideNum={9} total={totalSlides}>
+                            <p className="text-2xl mb-6">Loop through dictionaries to display their contents.</p>
+                            <CodeBlock code={`def display_word_counts(word_dict):\n    """Print each word and its count"""\n    for word, count in word_dict.items():\n        print(f"{word}: {count}")\n\ntext = "hello world hello python world"\ncounts = count_words(text)\ndisplay_word_counts(counts)\n\n# Output:\n# hello: 2\n# world: 2\n# python: 1`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 10 && (
+                        <Slide title="Practice: Character Counter" slideNum={10} total={totalSlides}>
+                            <CodeBlock code={`def count_characters(text):\n    """Count frequency of each character"""\n    char_count = {}\n    \n    for char in text:\n        if char != " ":  # Skip spaces\n            if char in char_count:\n                char_count[char] += 1\n            else:\n                char_count[char] = 1\n    \n    return char_count\n\nword = "mississippi"\nresult = count_characters(word)\n\nfor letter, count in result.items():\n    print(f"{letter}: {count}")`} />
+                        </Slide>
+                    )}
+
+                    {currentSlide === 11 && (
+                        <Slide title="Quick Study Check" slideNum={11} total={totalSlides}>
+                            <div className="space-y-6 text-2xl">
+                                <p><strong>Q:</strong> What does range(5) generate? <span className="text-red-600 font-bold">Numbers 0 to 4</span></p>
+                                <p><strong>Q:</strong> What's the risk with while loops? <span className="text-red-600 font-bold">Infinite loops if condition never becomes False</span></p>
+                                <p><strong>Q:</strong> How to add to a list? <span className="text-red-600 font-bold">list.append(item)</span></p>
+                                <p><strong>Q:</strong> How to loop through dict items? <span className="text-red-600 font-bold">for key, value in dict.items():</span></p>
+                            </div>
+                        </Slide>
+                    )}
+
+                    {currentSlide === 12 && (
+                        <Slide isTitle slideNum={12} total={totalSlides}>
+                            <h2 className="text-6xl font-black rutgers-text mb-6">Chapter Complete</h2>
+                            <p className="text-3xl text-gray-700">You've mastered loops and dictionaries!</p>
+                            <div className="h-2 w-32 rutgers-scarlet mt-8"></div>
+                        </Slide>
+                    )}
+
+                    <div className="flex justify-between mt-12 items-center">
+                        <button 
+                            onClick={prev} 
+                            disabled={currentSlide === 1}
+                            className="bg-gray-300 text-gray-800 px-10 py-5 rounded-lg disabled:opacity-20 hover:bg-gray-400 font-black uppercase tracking-widest text-lg transition"
+                        >
+                            Back
+                        </button>
+                        <div className="flex gap-2">
+                            {[...Array(totalSlides)].map((_, i) => (
+                                <div key={i} className={`h-2 w-6 ${currentSlide === i+1 ? 'rutgers-scarlet' : 'bg-gray-300'}`}></div>
+                            ))}
+                        </div>
+                        <button 
+                            onClick={next} 
+                            disabled={currentSlide === totalSlides}
+                            className="rutgers-scarlet text-white px-10 py-5 rounded-lg disabled:opacity-20 hover:opacity-90 font-black uppercase tracking-widest text-lg transition shadow-2xl"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
