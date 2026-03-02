@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>OSI Model – Interactive Presentation</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#0a0e1a;--card:#111827;--border:#1e2d45;--accent:#3b82f6;--accent2:#8b5cf6;--text:#e2e8f0;--muted:#64748b;}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);}
+.deck{width:100%;height:100vh;overflow:hidden;position:relative;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .4s ease,transform .4s ease;transform:translateX(60px);padding:48px 64px;overflow-y:auto;}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0);}
+.slide.exit{opacity:0;transform:translateX(-60px);}
+.nav{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;z-index:100;background:rgba(17,24,39,.9);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:999px;padding:10px 24px;}
+.nav button{background:none;border:none;color:var(--text);cursor:pointer;font-size:18px;padding:4px 10px;border-radius:6px;transition:background .2s;}
+.nav button:hover{background:var(--border);}
+.nav button:disabled{opacity:.3;cursor:default;}
+.slide-counter{font-size:13px;color:var(--muted);min-width:60px;text-align:center;}
+.dots{display:flex;gap:6px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);cursor:pointer;transition:background .2s,transform .2s;}
+.dot.active{background:var(--accent);transform:scale(1.3);}
+.save-btn{position:fixed;top:24px;right:24px;z-index:200;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(59,130,246,.4);transition:opacity .2s;}
+.save-btn:hover{opacity:.85;}
+#s0{background:radial-gradient(ellipse at 30% 50%,rgba(59,130,246,.15) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(139,92,246,.12) 0%,transparent 50%),var(--bg);justify-content:center;align-items:center;text-align:center;}
+#s0 .tag{font-size:12px;text-transform:uppercase;letter-spacing:3px;color:var(--accent);margin-bottom:24px;}
+#s0 h1{font-size:clamp(40px,6vw,72px);font-weight:900;line-height:1.1;background:linear-gradient(135deg,#fff 30%,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+#s0 .sub{font-size:18px;color:var(--muted);margin-top:20px;max-width:520px;line-height:1.6;}
+#s0 .pill{display:inline-flex;gap:6px;margin-top:40px;}
+#s0 .pill span{width:28px;height:28px;border-radius:6px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;}
+.slide-title{font-size:13px;text-transform:uppercase;letter-spacing:3px;color:var(--accent);margin-bottom:12px;}
+.slide-heading{font-size:clamp(28px,4vw,48px);font-weight:800;line-height:1.15;margin-bottom:36px;}
+.slide-heading span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.card.blue::before{background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.card h3{font-size:16px;font-weight:700;margin-bottom:10px;}
+.card p{font-size:14px;color:var(--muted);line-height:1.65;}
+.card .badge{font-size:11px;font-weight:600;border-radius:6px;padding:3px 8px;background:rgba(59,130,246,.15);color:var(--accent);display:inline-block;margin-bottom:10px;}
+.stack{display:flex;flex-direction:column;gap:8px;}
+.layer-row{display:flex;align-items:stretch;gap:16px;border-radius:12px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.layer-row:hover{transform:translateX(6px);box-shadow:-4px 0 20px rgba(59,130,246,.15);}
+.layer-num{width:56px;min-height:56px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0;}
+.layer-body{flex:1;padding:14px 16px;}
+.layer-body h4{font-size:15px;font-weight:700;margin-bottom:4px;}
+.layer-body p{font-size:13px;color:var(--muted);line-height:1.5;}
+.layer-protocols{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.proto{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid;opacity:.8;}
+.compare{display:flex;gap:20px;}
+.compare-col{flex:1;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.compare-col .col-head{padding:18px 22px;font-weight:700;font-size:16px;border-bottom:1px solid var(--border);}
+.compare-col.osi .col-head{background:rgba(59,130,246,.12);}
+.compare-col.tcp .col-head{background:rgba(139,92,246,.12);}
+.compare-col ul{list-style:none;padding:16px 22px;display:flex;flex-direction:column;gap:10px;}
+.compare-col ul li{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:10px;line-height:1.5;}
+.compare-col ul li::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.compare-col.osi ul li::before{background:var(--accent);}
+.compare-col.tcp ul li::before{background:var(--accent2);}
+.flow-wrap{display:flex;align-items:stretch;gap:0;justify-content:center;flex-wrap:wrap;}
+.flow-item{display:flex;flex-direction:column;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;text-align:center;min-width:100px;}
+.flow-item .fi-num{font-size:22px;margin-bottom:6px;}
+.flow-item h5{font-size:12px;font-weight:700;margin-bottom:4px;}
+.flow-item p{font-size:11px;color:var(--muted);}
+.flow-arrow{display:flex;align-items:center;color:var(--muted);font-size:22px;padding:0 4px;}
+.benefit-card{display:flex;gap:18px;align-items:flex-start;}
+.benefit-icon{font-size:28px;}
+.benefit-card h3{font-size:16px;font-weight:700;margin-bottom:6px;}
+.benefit-card p{font-size:14px;color:var(--muted);line-height:1.6;}
+#s9{background:radial-gradient(ellipse at 70% 30%,rgba(139,92,246,.15) 0%,transparent 55%),radial-gradient(ellipse at 20% 80%,rgba(59,130,246,.1) 0%,transparent 50%),var(--bg);justify-content:center;align-items:center;text-align:center;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+<button class="save-btn" onclick="saveHTML()">
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  Save as HTML
+</button>
+<div class="deck">
+<!-- SLIDE 0 TITLE -->
+<div class="slide active" id="s0">
+  <div class="tag">Network Architecture</div>
+  <h1>The OSI Model</h1>
+  <p class="sub">A conceptual framework dividing network communication into seven abstract layers — enabling interoperability across every device and protocol on Earth.</p>
+  <div class="pill">
+    <span style="background:#ef4444">1</span><span style="background:#f97316">2</span><span style="background:#eab308">3</span>
+    <span style="background:#22c55e">4</span><span style="background:#3b82f6">5</span><span style="background:#8b5cf6">6</span><span style="background:#ec4899">7</span>
+  </div>
+  <p style="margin-top:16px;font-size:12px;color:var(--muted)">Source: IBM Think — ibm.com/think/topics/osi-model</p>
+</div>
+<!-- SLIDE 1 WHAT IS OSI -->
+<div class="slide" id="s1">
+  <div class="slide-title">Overview</div>
+  <div class="slide-heading">What is the <span>OSI Model?</span></div>
+  <div class="grid-2">
+    <div class="card blue"><div class="badge">Definition</div><h3>Open Systems Interconnection</h3><p>A conceptual model dividing network communication into seven abstract layers, providing a standardized framework so different applications, computer systems, and networks can communicate with one another.</p></div>
+    <div class="card blue"><div class="badge">Purpose</div><h3>A Framework for Interoperability</h3><p>OSI gave developers and engineers a categorical framework for building interoperable hardware and software across networks, solving incompatibilities that arose from proprietary protocols in the early computing era.</p></div>
+    <div class="card blue" style="grid-column:1/-1"><div class="badge">Key Insight</div><h3>Tasks, Not Protocols</h3><p>Rather than specifying exact communication protocols, the OSI model defines the tasks engineers must complete at each layer. This theoretical approach lets developers conceptualize and build complex networks even without prior knowledge of the entire networking system.</p></div>
+  </div>
+</div>
+<!-- SLIDE 2 HISTORY -->
+<div class="slide" id="s2">
+  <div class="slide-title">History</div>
+  <div class="slide-heading">Where did it <span>come from?</span></div>
+  <div class="stack">
+    <div class="card blue"><div class="badge">Late 1970s – Early 1980s</div><p>Computer systems became increasingly interconnected, but manufacturers developed their own proprietary networking solutions creating non-interoperable systems. Early efforts like ARPANET and TCP/IP highlighted the need for a truly universal framework.</p></div>
+    <div class="card blue" style="margin-top:8px"><div class="badge">ISO &amp; CCITT Initiative</div><p>The International Organization for Standardization (ISO) and the International Telegraph and Telephone Consultative Committee (CCITT) recognized the growing importance of networking and initiated development of a universally accepted standardized model.</p></div>
+    <div class="card blue" style="margin-top:8px"><div class="badge">1984 — Official Publication</div><p>The ISO formally published the OSI model. Unlike previous attempts, OSI's layered configuration enabled disparate systems to communicate despite differences in their underlying architectures and protocols — a seminal moment in computing history.</p></div>
+  </div>
+</div>
+<!-- SLIDE 3 ALL 7 LAYERS -->
+<div class="slide" id="s3">
+  <div class="slide-title">Architecture</div>
+  <div class="slide-heading">The <span>7 Layers</span> at a Glance</div>
+  <div class="stack" id="layerStack"></div>
+</div>
+<!-- SLIDE 4 UPPER LAYERS -->
+<div class="slide" id="s4">
+  <div class="slide-title">Software Layers</div>
+  <div class="slide-heading">Layers <span>7 – 5</span></div>
+  <div class="grid-3">
+    <div class="card" style="border-top:3px solid #ec4899"><div class="badge" style="color:#ec4899;background:rgba(236,72,153,.1)">Layer 7</div><h3>Application</h3><p>Closest to the end user. Provides protocols (HTTP, FTP, DNS, SMTP) enabling software to send and receive data. Handles file transfer, authentication, remote access, and directory services.</p><div class="layer-protocols" style="margin-top:12px"><span class="proto" style="color:#ec4899;border-color:#ec4899">HTTP</span><span class="proto" style="color:#ec4899;border-color:#ec4899">FTP</span><span class="proto" style="color:#ec4899;border-color:#ec4899">DNS</span><span class="proto" style="color:#ec4899;border-color:#ec4899">SMTP</span></div></div>
+    <div class="card" style="border-top:3px solid #8b5cf6"><div class="badge" style="color:#8b5cf6;background:rgba(139,92,246,.1)">Layer 6</div><h3>Presentation</h3><p>Also called the "syntax layer." Translates, compresses, and encrypts/decrypts data so the application layer receives it in the right format. Supports SSL/TLS, JPEG, and MPEG protocols.</p><div class="layer-protocols" style="margin-top:12px"><span class="proto" style="color:#8b5cf6;border-color:#8b5cf6">SSL/TLS</span><span class="proto" style="color:#8b5cf6;border-color:#8b5cf6">JPEG</span><span class="proto" style="color:#8b5cf6;border-color:#8b5cf6">MPEG</span></div></div>
+    <div class="card" style="border-top:3px solid #3b82f6"><div class="badge" style="color:#3b82f6;background:rgba(59,130,246,.1)">Layer 5</div><h3>Session</h3><p>Manages sessions — establishing, synchronizing, and terminating connections between devices. Handles authentication, checkpoints for recovery, and keeps sessions open long enough to complete data transfer.</p><div class="layer-protocols" style="margin-top:12px"><span class="proto" style="color:#3b82f6;border-color:#3b82f6">RPC</span><span class="proto" style="color:#3b82f6;border-color:#3b82f6">NetBIOS</span></div></div>
+  </div>
+</div>
+<!-- SLIDE 5 LOWER LAYERS -->
+<div class="slide" id="s5">
+  <div class="slide-title">Hardware Layers</div>
+  <div class="slide-heading">Layers <span>4 – 1</span></div>
+  <div class="grid-2">
+    <div class="card" style="border-top:3px solid #22c55e"><div class="badge" style="color:#22c55e;background:rgba(34,197,94,.1)">Layer 4 — Transport</div><p>The "heart of OSI." Manages end-to-end delivery via TCP (reliable) or UDP (fast). Breaks messages into segments, handles flow control, port addressing, and multiplexing.</p><div class="layer-protocols" style="margin-top:10px"><span class="proto" style="color:#22c55e;border-color:#22c55e">TCP</span><span class="proto" style="color:#22c55e;border-color:#22c55e">UDP</span></div></div>
+    <div class="card" style="border-top:3px solid #eab308"><div class="badge" style="color:#eab308;background:rgba(234,179,8,.1)">Layer 3 — Network</div><p>Handles routing and packet forwarding across different networks. Determines the optimal path, breaks segments into packets, and reassembles at the destination using IPv4 and IPv6.</p><div class="layer-protocols" style="margin-top:10px"><span class="proto" style="color:#eab308;border-color:#eab308">IPv4</span><span class="proto" style="color:#eab308;border-color:#eab308">IPv6</span><span class="proto" style="color:#eab308;border-color:#eab308">ICMP</span></div></div>
+    <div class="card" style="border-top:3px solid #f97316"><div class="badge" style="color:#f97316;background:rgba(249,115,22,.1)">Layer 2 — Data Link</div><p>Manages error-free transfer between devices on the same network. Divides packets into frames, uses MAC addresses via ARP, and splits into LLC and MAC sublayers for flow and access control.</p><div class="layer-protocols" style="margin-top:10px"><span class="proto" style="color:#f97316;border-color:#f97316">Ethernet</span><span class="proto" style="color:#f97316;border-color:#f97316">ARP</span><span class="proto" style="color:#f97316;border-color:#f97316">PPP</span></div></div>
+    <div class="card" style="border-top:3px solid #ef4444"><div class="badge" style="color:#ef4444;background:rgba(239,68,68,.1)">Layer 1 — Physical</div><p>Transmits raw bits (1s and 0s) over physical media — cables, routers, repeaters, fiber optics, and wi-fi. Defines bit rate, synchronization, and transmission mode (simplex or duplex).</p><div class="layer-protocols" style="margin-top:10px"><span class="proto" style="color:#ef4444;border-color:#ef4444">USB</span><span class="proto" style="color:#ef4444;border-color:#ef4444">Bluetooth</span><span class="proto" style="color:#ef4444;border-color:#ef4444">Ethernet</span></div></div>
+  </div>
+</div>
+<!-- SLIDE 6 DATA FLOW -->
+<div class="slide" id="s6">
+  <div class="slide-title">How It Works</div>
+  <div class="slide-heading">Sending an <span>Email</span> — End to End</div>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:28px">Follow how an email travels from sender to recipient through all seven OSI layers.</p>
+  <div class="flow-wrap">
+    <div class="flow-item"><div class="fi-num">📧</div><h5>User sends</h5><p>Presses "Send"</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item"><div class="fi-num" style="color:#ec4899">7</div><h5>Application</h5><p>Chooses SMTP</p></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-item"><div class="fi-num" style="color:#8b5cf6">6</div><h5>Presentation</h5><p>Compresses</p></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-item"><div class="fi-num" style="color:#3b82f6">5</div><h5>Session</h5><p>Opens session</p></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-item"><div class="fi-num" style="color:#22c55e">4</div><h5>Transport</h5><p>Segments data</p></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-item"><div class="fi-num" style="color:#eab308">3</div><h5>Network</h5><p>Packets + route</p></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-item"><div class="fi-num" style="color:#f97316">2</div><h5>Data Link</h5><p>Frames + MAC</p></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-item"><div class="fi-num" style="color:#ef4444">1</div><h5>Physical</h5><p>Bits over wi-fi</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item"><div class="fi-num">📥</div><h5>Recipient</h5><p>Reversed path</p></div>
+  </div>
+  <div class="card blue" style="margin-top:24px"><p><strong>Bidirectional flow:</strong> Data moves down the stack on the sender's side (encapsulation) and back up the stack on the receiver's side (de-encapsulation). Both devices continuously switch between sender and receiver roles.</p></div>
+</div>
+<!-- SLIDE 7 OSI vs TCP/IP -->
+<div class="slide" id="s7">
+  <div class="slide-title">Comparison</div>
+  <div class="slide-heading">OSI vs <span>TCP/IP</span></div>
+  <div class="compare">
+    <div class="compare-col osi"><div class="col-head" style="color:var(--accent)">OSI Model — 7 Layers</div><ul><li>Theoretical, conceptual framework</li><li>7 distinct, granular layers</li><li>Not directly implemented in real networks</li><li>Primary value is educational and protocol design</li><li>Encourages modular, independent layer development</li><li>Excellent for troubleshooting — isolate one layer without disrupting others</li></ul></div>
+    <div class="compare-col tcp"><div class="col-head" style="color:var(--accent2)">TCP/IP Model — 4 Layers</div><ul><li>Based on standardized, real-world protocols</li><li>4 layers: Network Access, Internet, Transport, Application</li><li>Directly implemented — backbone of the modern internet</li><li>Application layer spans OSI layers 5–7</li><li>Network access layer spans OSI layers 1–2</li><li>Robust, scalable design accommodating billions of devices</li></ul></div>
+  </div>
+  <div class="card blue" style="margin-top:20px"><p><strong>Bottom line:</strong> OSI is the <em>map</em>; TCP/IP is the <em>road</em>. OSI helps engineers understand and design networks; TCP/IP is what actually powers the internet.</p></div>
+</div>
+<!-- SLIDE 8 BENEFITS -->
+<div class="slide" id="s8">
+  <div class="slide-title">Benefits</div>
+  <div class="slide-heading">Why the OSI Model <span>Still Matters</span></div>
+  <div style="display:flex;flex-direction:column;gap:18px">
+    <div class="card blue"><div class="benefit-card"><div class="benefit-icon">🚀</div><div><h3>Accelerated Research &amp; Development</h3><p>OSI's vertically layered approach enables modular protocol design — each layer can be developed and updated independently. Engineers integrate new technologies without overhauling the entire network stack.</p></div></div></div>
+    <div class="card blue"><div class="benefit-card"><div class="benefit-icon">🤝</div><div><h3>Streamlined Knowledge Sharing</h3><p>By separating a network's operating layers and organizing them by primary role, OSI makes it easier for developers to conceptualize a network and share simplified models between teams — reducing the learning curve for complex systems.</p></div></div></div>
+    <div class="card blue"><div class="benefit-card"><div class="benefit-icon">🔍</div><div><h3>Simplified Troubleshooting</h3><p>When a device fails or an app loses connection, OSI allows teams to pinpoint the problematic layer and address security issues or vulnerabilities without disrupting the entire framework.</p></div></div></div>
+  </div>
+</div>
+<!-- SLIDE 9 RECAP -->
+<div class="slide" id="s9">
+  <div class="slide-title">Summary</div>
+  <h1 style="font-size:clamp(32px,5vw,60px);font-weight:900;line-height:1.1;background:linear-gradient(135deg,#fff 30%,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:24px">Key Takeaways</h1>
+  <div style="display:flex;flex-direction:column;gap:14px;max-width:600px;text-align:left">
+    <div class="card blue" style="padding:16px 20px"><p>📦 <strong>7 layers</strong> — from raw physical bits to human-readable application data.</p></div>
+    <div class="card blue" style="padding:16px 20px"><p>🏛️ <strong>Published in 1984</strong> by ISO to solve incompatibility across diverse networking protocols.</p></div>
+    <div class="card blue" style="padding:16px 20px"><p>🔄 <strong>Bidirectional data flow</strong> — encapsulation going down, de-encapsulation going up.</p></div>
+    <div class="card blue" style="padding:16px 20px"><p>🗺️ <strong>Conceptual, not operational</strong> — OSI is the map; TCP/IP runs the internet.</p></div>
+    <div class="card blue" style="padding:16px 20px"><p>🔧 <strong>Invaluable for troubleshooting</strong> — isolate issues at one layer without disrupting others.</p></div>
+  </div>
+  <p style="margin-top:28px;font-size:12px;color:var(--muted)">Source: IBM Think · ibm.com/think/topics/osi-model</p>
+</div>
+</div>
+<nav class="nav">
+  <button id="prevBtn" onclick="go(-1)" disabled>&#8592;</button>
+  <div class="dots" id="dots"></div>
+  <span class="slide-counter" id="counter">1 / 10</span>
+  <button id="nextBtn" onclick="go(1)">&#8594;</button>
+</nav>
+<script>
+const LAYERS=[
+  {num:7,name:'Application', color:'#ec4899',protocols:['HTTP','FTP','DNS','SMTP'],   desc:'Provides protocols enabling software to send/receive data. Handles file transfer, authentication, and remote access.'},
+  {num:6,name:'Presentation',color:'#8b5cf6',protocols:['SSL/TLS','JPEG','MPEG'],    desc:'Translates, compresses, and encrypts data. Also called the syntax layer.'},
+  {num:5,name:'Session',     color:'#3b82f6',protocols:['RPC','NetBIOS'],            desc:'Establishes, manages, and terminates sessions. Handles checkpoints and recovery.'},
+  {num:4,name:'Transport',   color:'#22c55e',protocols:['TCP','UDP'],               desc:'The "heart of OSI." Manages end-to-end delivery, segmentation, and flow control.'},
+  {num:3,name:'Network',     color:'#eab308',protocols:['IPv4','IPv6','ICMP'],       desc:'Handles routing and packet forwarding across different networks.'},
+  {num:2,name:'Data Link',   color:'#f97316',protocols:['Ethernet','ARP','PPP'],    desc:'Manages error-free data transfer on the same network using frames and MAC addresses.'},
+  {num:1,name:'Physical',    color:'#ef4444',protocols:['USB','Bluetooth','Ethernet'],desc:'Transmits raw bits over physical media — cables, fiber optics, wi-fi.'},
+];
+const stack=document.getElementById('layerStack');
+LAYERS.forEach(l=>{
+  const row=document.createElement('div');
+  row.className='layer-row';
+  row.innerHTML=`<div class="layer-num" style="background:${l.color}">${l.num}</div><div class="layer-body"><h4>${l.name} Layer</h4><p>${l.desc}</p><div class="layer-protocols">${l.protocols.map(p=>`<span class="proto" style="color:${l.color};border-color:${l.color}">${p}</span>`).join('')}</div></div>`;
+  stack.appendChild(row);
+});
+const slides=Array.from(document.querySelectorAll('.slide'));
+const dotsEl=document.getElementById('dots');
+const counter=document.getElementById('counter');
+const prevBtn=document.getElementById('prevBtn');
+const nextBtn=document.getElementById('nextBtn');
+let cur=0;
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' active':'');
+  d.onclick=()=>goTo(i);
+  dotsEl.appendChild(d);
+});
+function goTo(n){
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('exit');
+  setTimeout(()=>slides[cur].classList.remove('exit'),400);
+  cur=n;
+  slides.forEach((s,i)=>s.classList.toggle('active',i===cur));
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  counter.textContent=`${cur+1} / ${slides.length}`;
+  prevBtn.disabled=cur===0;
+  nextBtn.disabled=cur===slides.length-1;
+}
+function go(d){if(cur+d>=0&&cur+d<slides.length)goTo(cur+d);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown')go(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1);
+});
+function saveHTML(){
+  const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='OSI-Model-Presentation.html';
+  a.click();
+}
+</script>
+</body>
+</html>
