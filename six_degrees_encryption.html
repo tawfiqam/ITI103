@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Six Degrees & Encryption</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Barlow:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f;
+    --panel: #12121a;
+    --border: #1e1e2e;
+    --gold: #f0c040;
+    --amber: #e8902a;
+    --teal: #1de9b6;
+    --red: #ff4060;
+    --muted: #555570;
+    --text: #d4d4e8;
+    --white: #f0f0f8;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; gap: 0;
+    background: rgba(10,10,15,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    padding: 0 2rem;
+    height: 52px;
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.4rem;
+    color: var(--gold);
+    letter-spacing: .1em;
+    margin-right: 2.5rem;
+    white-space: nowrap;
+  }
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .82rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 0 1rem;
+    height: 52px;
+    display: flex; align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  nav a:hover { color: var(--white); border-color: var(--gold); }
+  nav a.active { color: var(--gold); border-color: var(--gold); }
+
+  /* ── SECTIONS ── */
+  section { min-height: 100vh; padding: 90px 0 60px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+  /* ── HERO ── */
+  #hero {
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: center; text-align: center;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(240,192,64,.07) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(29,233,182,.05) 0%, transparent 60%);
+    position: relative; overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute; inset: 0; opacity: .04;
+    background-image: linear-gradient(var(--gold) 1px, transparent 1px),
+      linear-gradient(90deg, var(--gold) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+  #hero h1 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(3rem, 10vw, 7rem);
+    line-height: .95;
+    letter-spacing: .04em;
+    color: var(--white);
+  }
+  #hero h1 span { color: var(--gold); }
+  #hero p {
+    margin-top: 1.4rem;
+    max-width: 560px;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+  .hero-chips {
+    display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 2rem; justify-content: center;
+  }
+  .chip {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 50px;
+    padding: .35rem 1rem;
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  /* ── SECTION HEADER ── */
+  .sec-header {
+    display: flex; align-items: baseline; gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .sec-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 5rem;
+    line-height: 1;
+    color: var(--border);
+    user-select: none;
+  }
+  .sec-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.6rem;
+    color: var(--white);
+    letter-spacing: .04em;
+  }
+  .sec-subtitle { font-size: .95rem; color: var(--muted); margin-top: .2rem; font-weight: 400; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.6rem;
+  }
+  .card h3 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.5rem;
+    letter-spacing: .06em;
+    color: var(--gold);
+    margin-bottom: .8rem;
+  }
+
+  /* ── DEGREE CHAIN ── */
+  .chain-wrap { overflow-x: auto; padding: 1rem 0; }
+  .chain {
+    display: flex; align-items: center;
+    gap: 0; min-width: max-content;
+  }
+  .chain-node {
+    display: flex; flex-direction: column; align-items: center;
+    gap: .35rem;
+  }
+  .node-circle {
+    width: 82px; height: 82px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    background: var(--panel);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: .62rem;
+    font-weight: 600;
+    text-align: center;
+    padding: .4rem;
+    line-height: 1.2;
+    color: var(--white);
+    position: relative;
+    transition: transform .2s, border-color .2s, box-shadow .2s;
+    cursor: default;
+  }
+  .node-circle:hover {
+    transform: scale(1.08);
+    border-color: var(--teal);
+    box-shadow: 0 0 18px rgba(29,233,182,.3);
+  }
+  .node-circle.target {
+    border-color: var(--gold);
+    background: rgba(240,192,64,.12);
+    box-shadow: 0 0 24px rgba(240,192,64,.35);
+  }
+  .node-icon { font-size: 1.5rem; margin-bottom: .1rem; }
+  .node-label {
+    font-size: .65rem;
+    color: var(--muted);
+    text-align: center;
+    max-width: 90px;
+    line-height: 1.3;
+  }
+  .chain-arrow {
+    width: 48px; flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center;
+    gap: .15rem;
+  }
+  .arrow-line {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--border), var(--amber), var(--border));
+  }
+  .arrow-film {
+    font-size: .6rem;
+    color: var(--amber);
+    text-align: center;
+    max-width: 80px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .degree-badge {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--panel);
+    border: 1px solid var(--amber);
+    border-radius: 6px;
+    padding: .4rem 1rem;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--amber);
+    margin-bottom: .8rem;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex; gap: .5rem; margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .tab {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .5rem 1.2rem;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .tab:hover { border-color: var(--gold); color: var(--white); }
+  .tab.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #0a0a0f;
+  }
+
+  /* ── CIPHER BOX ── */
+  .cipher-section { display: flex; flex-direction: column; gap: 1.5rem; }
+  .cipher-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+  }
+  @media(max-width:640px) { .cipher-row { grid-template-columns: 1fr; } }
+  .cipher-label {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .5rem;
+  }
+  .cipher-input {
+    width: 100%;
+    background: #0d0d16;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .8rem 1rem;
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    letter-spacing: .06em;
+    outline: none;
+    transition: border-color .2s;
+    resize: vertical;
+  }
+  .cipher-input:focus { border-color: var(--teal); }
+  .cipher-output {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    letter-spacing: .06em;
+    color: var(--teal);
+    background: #0d0d16;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .8rem 1rem;
+    min-height: 3.2rem;
+    word-break: break-all;
+  }
+  .key-row {
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    margin-bottom: .5rem;
+  }
+  .key-label { font-size: .8rem; color: var(--muted); font-weight: 600; }
+  .key-slider {
+    flex: 1; min-width: 140px;
+    accent-color: var(--gold);
+  }
+  .key-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold);
+    min-width: 2rem;
+    text-align: center;
+  }
+
+  /* ── CIPHER TABLE ── */
+  .alpha-table {
+    overflow-x: auto;
+    margin-top: 1rem;
+    border-radius: 8px;
+    background: #0d0d16;
+    border: 1px solid var(--border);
+  }
+  .alpha-table table {
+    border-collapse: collapse;
+    font-family: 'DM Mono', monospace;
+    font-size: .75rem;
+    width: 100%;
+  }
+  .alpha-table td {
+    width: 36px; height: 36px;
+    text-align: center;
+    border: 1px solid var(--border);
+    transition: background .2s, color .2s;
+  }
+  .alpha-table .row-lbl {
+    color: var(--muted);
+    font-size: .68rem;
+    padding: 0 .5rem;
+    white-space: nowrap;
+    width: auto;
+  }
+  .alpha-table .plain-cell { color: var(--text); }
+  .alpha-table .cipher-cell { color: var(--teal); font-weight: 700; }
+  .alpha-table .active-cell { background: rgba(240,192,64,.18); color: var(--gold) !important; }
+
+  /* ── CONCEPT CARDS ── */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+  }
+  .concept-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.4rem;
+    transition: border-color .2s, transform .2s;
+  }
+  .concept-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+  .concept-card .icon { font-size: 1.8rem; margin-bottom: .7rem; }
+  .concept-card h4 { font-family: 'Bebas Neue', cursive; font-size: 1.15rem; color: var(--white); letter-spacing: .06em; margin-bottom: .5rem; }
+  .concept-card p { font-size: .85rem; color: var(--muted); line-height: 1.65; }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--border); margin: 3rem 0; }
+
+  /* ── DUNBAR BOX ── */
+  .dunbar-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+  .dunbar-ring {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .dunbar-ring .dn { font-family: 'Bebas Neue', cursive; font-size: 1.8rem; }
+  .dunbar-ring .dl { font-size: .68rem; color: rgba(255,255,255,.55); }
+
+  /* ── SCROLL FADE ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp .5s ease both; }
+
+  /* buttons */
+  .btn {
+    background: transparent;
+    border: 1px solid var(--gold);
+    border-radius: 6px;
+    color: var(--gold);
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: .5rem 1.2rem;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .btn:hover { background: var(--gold); color: var(--bg); }
+  .btn.teal { border-color: var(--teal); color: var(--teal); }
+  .btn.teal:hover { background: var(--teal); color: var(--bg); }
+
+  /* ── KEY CIPHER TEXT INPUT ── */
+  .keyword-input {
+    background: #0d0d16;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .45rem .8rem;
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    letter-spacing: .1em;
+    outline: none;
+    text-transform: uppercase;
+    width: 200px;
+    transition: border-color .2s;
+  }
+  .keyword-input:focus { border-color: var(--gold); }
+  .info-tag {
+    display: inline-block;
+    background: rgba(29,233,182,.1);
+    border: 1px solid rgba(29,233,182,.25);
+    border-radius: 4px;
+    padding: .2rem .6rem;
+    font-size: .72rem;
+    color: var(--teal);
+    font-weight: 600;
+    margin-left: .4rem;
+  }
+  .mapping-display {
+    display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .8rem;
+  }
+  .map-cell {
+    display: flex; flex-direction: column; align-items: center;
+    background: #0d0d16;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 32px;
+    padding: .2rem 0;
+    transition: background .2s;
+  }
+  .map-cell.highlight { background: rgba(240,192,64,.15); border-color: var(--gold); }
+  .map-cell span:first-child { font-family: 'DM Mono', monospace; font-size: .68rem; color: var(--muted); }
+  .map-cell span:last-child  { font-family: 'DM Mono', monospace; font-size: .75rem; color: var(--teal); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<nav id="main-nav">
+  <span class="nav-logo">CS Concepts</span>
+  <a href="#hero">Home</a>
+  <a href="#bacon">Kevin Bacon</a>
+  <a href="#jackson">Samuel Jackson</a>
+  <a href="#networks">Networks</a>
+  <a href="#encryption">Encryption</a>
+</nav>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+/* ── DATA ── */
+const baconChains = [
+  {
+    person: "Tom Hanks",
+    degrees: 1,
+    chain: [
+      { name: "Tom Hanks", film: null, emoji: "🎬" },
+      { name: "Kevin Bacon", film: "Apollo 13 (1995)", emoji: "⭐" },
+    ]
+  },
+  {
+    person: "Meryl Streep",
+    degrees: 2,
+    chain: [
+      { name: "Meryl Streep", film: null, emoji: "🎬" },
+      { name: "Kevin Kline", film: "Sophie's Choice (1982)", emoji: "🎭" },
+      { name: "Kevin Bacon", film: "Wild Things (1998)", emoji: "⭐" },
+    ]
+  },
+  {
+    person: "Leonardo DiCaprio",
+    degrees: 2,
+    chain: [
+      { name: "Leonardo DiCaprio", film: null, emoji: "🎬" },
+      { name: "Tom Hanks", film: "Catch Me If You Can (2002)", emoji: "🎭" },
+      { name: "Kevin Bacon", film: "Apollo 13 (1995)", emoji: "⭐" },
+    ]
+  },
+  {
+    person: "Audrey Hepburn",
+    degrees: 3,
+    chain: [
+      { name: "Audrey Hepburn", film: null, emoji: "🎬" },
+      { name: "Sean Connery", film: "Robin and Marian (1976)", emoji: "🎭" },
+      { name: "Al Pacino", film: "The Name of the Rose (1986)", emoji: "🎭" },
+      { name: "Kevin Bacon", film: "Sleepers (1996)", emoji: "⭐" },
+    ]
+  },
+];
+
+const jacksonChains = [
+  {
+    person: "Scarlett Johansson",
+    degrees: 1,
+    chain: [
+      { name: "Scarlett Johansson", film: null, emoji: "🎬" },
+      { name: "Samuel L. Jackson", film: "The Avengers (2012)", emoji: "👑" },
+    ]
+  },
+  {
+    person: "Chris Evans",
+    degrees: 1,
+    chain: [
+      { name: "Chris Evans", film: null, emoji: "🎬" },
+      { name: "Samuel L. Jackson", film: "Captain America: The First Avenger (2011)", emoji: "👑" },
+    ]
+  },
+  {
+    person: "Quentin Tarantino",
+    degrees: 2,
+    chain: [
+      { name: "Quentin Tarantino", film: null, emoji: "🎬" },
+      { name: "John Travolta", film: "Pulp Fiction (1994)", emoji: "🎭" },
+      { name: "Samuel L. Jackson", film: "Pulp Fiction (1994)", emoji: "👑" },
+    ]
+  },
+  {
+    person: "Cate Blanchett",
+    degrees: 2,
+    chain: [
+      { name: "Cate Blanchett", film: null, emoji: "🎬" },
+      { name: "Brad Pitt", film: "Babel (2006)", emoji: "🎭" },
+      { name: "Samuel L. Jackson", film: "Inglourious Basterds (2009)", emoji: "👑" },
+    ]
+  },
+  {
+    person: "Rutger Hauer",
+    degrees: 2,
+    chain: [
+      { name: "Rutger Hauer", film: null, emoji: "🎬" },
+      { name: "John Travolta", film: "Mr. Rutger (1996)", emoji: "🎭" },
+      { name: "Samuel L. Jackson", film: "Pulp Fiction (1994)", emoji: "👑" },
+    ]
+  },
+];
+
+/* ── ROT13 ── */
+function rot13(str) {
+  return str.replace(/[a-zA-Z]/g, c => {
+    const base = c <= 'Z' ? 65 : 97;
+    return String.fromCharCode(((c.charCodeAt(0) - base + 13) % 26) + base);
+  });
+}
+
+/* ── Caesar cipher ── */
+function caesar(str, shift, decode = false) {
+  const s = decode ? (26 - shift) % 26 : shift;
+  return str.replace(/[a-zA-Z]/g, c => {
+    const base = c <= 'Z' ? 65 : 97;
+    return String.fromCharCode(((c.charCodeAt(0) - base + s) % 26) + base);
+  });
+}
+
+/* ── Keyword cipher ── */
+function buildKeywordAlphabet(keyword) {
+  const seen = new Set();
+  const clean = keyword.toUpperCase().replace(/[^A-Z]/g, '');
+  let result = '';
+  for (const c of clean) { if (!seen.has(c)) { seen.add(c); result += c; } }
+  for (let i = 0; i < 26; i++) {
+    const c = String.fromCharCode(65 + i);
+    if (!seen.has(c)) { seen.add(c); result += c; }
+  }
+  return result;
+}
+function keywordCipher(str, keyword, decode = false) {
+  const alpha = buildKeywordAlphabet(keyword);
+  return str.replace(/[a-zA-Z]/g, c => {
+    const upper = c.toUpperCase();
+    if (decode) {
+      const idx = alpha.indexOf(upper);
+      const enc = String.fromCharCode(65 + idx);
+      return c === upper ? enc : enc.toLowerCase();
+    } else {
+      const idx = upper.charCodeAt(0) - 65;
+      const enc = alpha[idx];
+      return c === upper ? enc : enc.toLowerCase();
+    }
+  });
+}
+
+/* ── CHAIN COMPONENT ── */
+function DegreeChain({ chain, targetColor }) {
+  return (
+    <div className="chain-wrap">
+      <div className="chain">
+        {chain.map((node, i) => (
+          <React.Fragment key={i}>
+            <div className="chain-node">
+              <div className={`node-circle ${i === chain.length - 1 ? 'target' : ''}`}
+                   style={i === chain.length - 1 ? { borderColor: targetColor, background: `${targetColor}18`, boxShadow: `0 0 24px ${targetColor}50` } : {}}>
+                <span className="node-icon">{node.emoji}</span>
+                <span style={{ fontSize: '.6rem', lineHeight: 1.2, padding: '0 .2rem' }}>{node.name}</span>
+              </div>
+              {i > 0 && (
+                <span className="node-label" style={{ color: i === chain.length - 1 ? targetColor : undefined }}>
+                  {i === chain.length - 1 ? '🎯 Target' : `Step ${i}`}
+                </span>
+              )}
+              {i === 0 && <span className="node-label">Start</span>}
+            </div>
+            {i < chain.length - 1 && (
+              <div className="chain-arrow">
+                <div className="arrow-line" />
+                <span className="arrow-film" title={chain[i + 1].film}>
+                  {chain[i + 1].film ? chain[i + 1].film.replace(/\s\(\d{4}\)$/, '') : ''}
+                </span>
+              </div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── ALPHA TABLE ── */
+function AlphaTable({ plainRow, cipherRow, highlight = [] }) {
+  const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  return (
+    <div className="alpha-table">
+      <table>
+        <tbody>
+          <tr>
+            <td className="row-lbl">Plain</td>
+            {alpha.map((c, i) => (
+              <td key={c} className={`plain-cell ${highlight.includes(c) ? 'active-cell' : ''}`}>{c}</td>
+            ))}
+          </tr>
+          <tr>
+            <td className="row-lbl">Cipher</td>
+            {alpha.map((c, i) => (
+              <td key={c} className={`cipher-cell ${highlight.includes(c) ? 'active-cell' : ''}`}>{cipherRow[i]}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ── MAIN APP ── */
+function App() {
+  const [baconIdx, setBaconIdx] = useState(0);
+  const [jacksonIdx, setJacksonIdx] = useState(0);
+  const [cipherTab, setCipherTab] = useState('rot13');
+
+  // ROT13
+  const [rot13Input, setRot13Input] = useState('ATTACK AT DAWN');
+  // Caesar
+  const [caesarInput, setCaesarInput] = useState('ATTACK AT DAWN');
+  const [caesarShift, setCaesarShift] = useState(7);
+  const [caesarDecode, setCaesarDecode] = useState(false);
+  // Keyword
+  const [kwInput, setKwInput] = useState('HELLO WORLD');
+  const [kwKey, setKwKey] = useState('SECRET');
+  const [kwDecode, setKwDecode] = useState(false);
+
+  const rot13Alpha = 'NOPQRSTUVWXYZABCDEFGHIJKLM'.split('');
+  const caesarAlpha = Array.from({length:26},(_,i) => String.fromCharCode(65+((i+caesarShift)%26)));
+  const kwAlpha = buildKeywordAlphabet(kwKey).split('');
+
+  // highlight letters used in input
+  const getHighlight = (text) => [...new Set(text.toUpperCase().replace(/[^A-Z]/g,'').split(''))];
+
+  const rot13Result = rot13(rot13Input);
+  const caesarResult = caesar(caesarInput, caesarShift, caesarDecode);
+  const kwResult = keywordCipher(kwInput, kwKey, kwDecode);
+
+  return (
+    <>
+      {/* HERO */}
+      <section id="hero" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div className="hero-grid" />
+        <div className="container fade-up" style={{ position: 'relative', zIndex: 1 }}>
+          <h1>Six Degrees<br/><span>&</span> Encryption</h1>
+          <p>Exploring social networks, connectedness, and the art of keeping secrets — from Hollywood to cryptography.</p>
+          <div className="hero-chips">
+            <span className="chip">Six Degrees of Kevin Bacon</span>
+            <span className="chip">Samuel L. Jackson</span>
+            <span className="chip">Social Networks</span>
+            <span className="chip">ROT13 · Caesar · Keyword</span>
+            <span className="chip">Dunbar's Number</span>
+          </div>
+        </div>
+      </section>
+
+      {/* KEVIN BACON */}
+      <section id="bacon">
+        <div className="container">
+          <div className="sec-header">
+            <span className="sec-num">01</span>
+            <div>
+              <div className="sec-title">Six Degrees of Kevin Bacon</div>
+              <div className="sec-subtitle">Every actor in Hollywood can be linked to Kevin Bacon in 6 steps or fewer</div>
+            </div>
+          </div>
+
+          <div className="concept-grid" style={{ marginBottom: '2rem' }}>
+            <div className="concept-card">
+              <div className="icon">🕸️</div>
+              <h4>The Theory</h4>
+              <p>Six Degrees of Separation suggests any two people on Earth are connected through at most 6 acquaintances. The Bacon Number applies this to film co-stars.</p>
+            </div>
+            <div className="concept-card">
+              <div className="icon">🎬</div>
+              <h4>Kevin Bacon</h4>
+              <p>Chosen as the "center of the Hollywood universe" due to his prolific career spanning diverse genres and studios since the 1970s.</p>
+            </div>
+            <div className="concept-card">
+              <div className="icon">🔢</div>
+              <h4>Bacon Number</h4>
+              <p>Kevin Bacon himself has a Bacon Number of 0. Actors who appeared with him directly have a Bacon Number of 1, and so on.</p>
+            </div>
+          </div>
+
+          <div className="card">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.2rem' }}>
+              <h3>Interactive Bacon Number Chains</h3>
+              <div className="degree-badge">
+                🥓 Bacon Number: <strong style={{ color: 'var(--gold)', marginLeft: '.3rem' }}>{baconChains[baconIdx].degrees}</strong>
+              </div>
+            </div>
+
+            <div className="tabs">
+              {baconChains.map((b, i) => (
+                <button key={i} className={`tab ${baconIdx === i ? 'active' : ''}`}
+                  onClick={() => setBaconIdx(i)}>
+                  {b.person}
+                </button>
+              ))}
+            </div>
+
+            <DegreeChain chain={baconChains[baconIdx].chain} targetColor="#f0c040" />
+
+            <div style={{ marginTop: '1rem', fontSize: '.85rem', color: 'var(--muted)' }}>
+              {baconChains[baconIdx].chain.map((n, i) => n.film && (
+                <span key={i} style={{ marginRight: '1.5rem' }}>
+                  <span style={{ color: 'var(--amber)' }}>Step {i}:</span> {n.film}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="container"><div className="divider"/></div>
+
+      {/* SAMUEL JACKSON */}
+      <section id="jackson" style={{ paddingTop: '40px' }}>
+        <div className="container">
+          <div className="sec-header">
+            <span className="sec-num">02</span>
+            <div>
+              <div className="sec-title">Why is Samuel L. Jackson<br/>the Center of the Universe?</div>
+              <div className="sec-subtitle">Week 08 · Quantifying Connectedness</div>
+            </div>
+          </div>
+
+          <div className="concept-grid" style={{ marginBottom: '2rem' }}>
+            <div className="concept-card">
+              <div className="icon">👑</div>
+              <h4>Most Connected Actor</h4>
+              <p>Samuel L. Jackson appears in more films than nearly any major Hollywood star — his network of co-stars is exceptionally large and diverse.</p>
+            </div>
+            <div className="concept-card">
+              <div className="icon">🎥</div>
+              <h4>Genre Breadth</h4>
+              <p>From action blockbusters to indie dramas, animation to horror, Jackson spans every genre — maximizing the chance of a short connection to any actor.</p>
+            </div>
+            <div className="concept-card">
+              <div className="icon">🧮</div>
+              <h4>Jackson Number</h4>
+              <p>Like Bacon Number, a "Jackson Number" measures how many films separate any actor from Samuel L. Jackson. Most Hollywood actors score a 2 or less.</p>
+            </div>
+          </div>
+
+          <div className="card" style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.2rem' }}>
+              <h3>Interactive Jackson Number Chains</h3>
+              <div className="degree-badge" style={{ borderColor: 'var(--teal)', color: 'var(--teal)' }}>
+                🎬 Jackson Number: <strong style={{ color: 'var(--teal)', marginLeft: '.3rem' }}>{jacksonChains[jacksonIdx].degrees}</strong>
+              </div>
+            </div>
+
+            <div className="tabs">
+              {jacksonChains.map((j, i) => (
+                <button key={i} className={`tab ${jacksonIdx === i ? 'active' : ''}`}
+                  onClick={() => setJacksonIdx(i)}>
+                  {j.person}
+                </button>
+              ))}
+            </div>
+
+            <DegreeChain chain={jacksonChains[jacksonIdx].chain} targetColor="#1de9b6" />
+
+            <div style={{ marginTop: '1rem', fontSize: '.85rem', color: 'var(--muted)' }}>
+              {jacksonChains[jacksonIdx].chain.map((n, i) => n.film && (
+                <span key={i} style={{ marginRight: '1.5rem' }}>
+                  <span style={{ color: 'var(--amber)' }}>Step {i}:</span> {n.film}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Dunbar's Number */}
+          <div className="card">
+            <h3>Dunbar's Number & Social Networks</h3>
+            <p style={{ fontSize: '.9rem', color: 'var(--muted)', marginBottom: '1rem', lineHeight: 1.7 }}>
+              Robin Dunbar proposed that humans can maintain stable social relationships with roughly <strong style={{ color: 'var(--gold)' }}>150 people</strong> at once.
+              This is the "cognitive limit" imposed by the size of our neocortex. Six Degrees theory shows that even with this constraint, the world is surprisingly small.
+            </p>
+            <div className="dunbar-row">
+              {[
+                { n: '5', label: 'Intimate', bg: 'rgba(255,64,96,.15)', border: 'var(--red)' },
+                { n: '15', label: 'Close Friends', bg: 'rgba(232,144,42,.15)', border: 'var(--amber)' },
+                { n: '50', label: 'Good Friends', bg: 'rgba(240,192,64,.12)', border: 'var(--gold)' },
+                { n: '150', label: "Dunbar's Limit", bg: 'rgba(29,233,182,.12)', border: 'var(--teal)' },
+                { n: '500', label: 'Acquaintances', bg: 'rgba(100,100,180,.12)', border: '#6464b4' },
+              ].map(d => (
+                <div key={d.n} className="dunbar-ring" style={{ background: d.bg, border: `2px solid ${d.border}`, color: d.border }}>
+                  <span className="dn">{d.n}</span>
+                  <span className="dl">{d.label}</span>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: '.82rem', color: 'var(--muted)', marginTop: '1rem', lineHeight: 1.7 }}>
+              Relation to IT & Informatics: Social network platforms exploit and exceed these limits — your Instagram "friends" may number in thousands, but real influence still clusters around Dunbar rings. Graph theory and network centrality metrics quantify who the true "hubs" (like Samuel L. Jackson) are in any network.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="container"><div className="divider"/></div>
+
+      {/* NETWORKS */}
+      <section id="networks" style={{ paddingTop: '40px' }}>
+        <div className="container">
+          <div className="sec-header">
+            <span className="sec-num">03</span>
+            <div>
+              <div className="sec-title">Social Networks & Data Science</div>
+              <div className="sec-subtitle">Real networks vs. platforms · Centrality · Connectedness</div>
+            </div>
+          </div>
+
+          <div className="concept-grid">
+            {[
+              { icon: '🏫', title: 'Real Social Networks', body: 'Friends, coworkers, classmates, community members, family. These are authentic ties — not follower counts on platforms.' },
+              { icon: '📊', title: 'Network Centrality', body: 'A node (person) is "central" if many shortest paths between other nodes pass through them. Samuel L. Jackson is highly central in Hollywood\'s film network.' },
+              { icon: '🍽️', title: 'Lunch Table Research', body: 'The "High School Popularity Project" measures social clustering by tracking who sits with whom at lunch — a real-world graph data collection method.' },
+              { icon: '🌐', title: 'Internet Topology', body: 'Internet traffic also forms a network. Understanding centrality helps identify bottlenecks, vulnerabilities, and key routing nodes — directly connecting to cybersecurity.' },
+              { icon: '🔗', title: 'Small World Effect', body: 'Despite billions of people, short paths exist everywhere due to "bridge" nodes. This is why misinformation spreads so fast and why contact tracing works.' },
+              { icon: '🧠', title: 'Why This Matters in IT', body: 'Graph algorithms power recommendation systems, fraud detection, routing protocols, and social media feeds. Six Degrees isn\'t just trivia — it\'s the foundation of network science.' },
+            ].map((c, i) => (
+              <div className="concept-card" key={i}>
+                <div className="icon">{c.icon}</div>
+                <h4>{c.title}</h4>
+                <p>{c.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="container"><div className="divider"/></div>
+
+      {/* ENCRYPTION */}
+      <section id="encryption" style={{ paddingTop: '40px' }}>
+        <div className="container">
+          <div className="sec-header">
+            <span className="sec-num">04</span>
+            <div>
+              <div className="sec-title">Encryption</div>
+              <div className="sec-subtitle">Week 09 · Substitution Ciphers · From "ATTACK AT DAWN" to the AES standard</div>
+            </div>
+          </div>
+
+          {/* Why secure? */}
+          <div className="card" style={{ marginBottom: '1.5rem', background: 'linear-gradient(135deg, #12121a, #0d1520)' }}>
+            <h3>Why do we secure our traffic?</h3>
+            <div className="concept-grid" style={{ marginTop: '0' }}>
+              {[
+                { icon: '🔒', title: 'Confidentiality', body: 'Ensure that only the intended recipient can read the message. Encryption is the primary tool.' },
+                { icon: '🛡️', title: 'Integrity', body: 'Confirm the message was not altered in transit. Checksums and hashing serve this goal.' },
+                { icon: '✅', title: 'Availability', body: 'Ensure systems remain accessible to authorized users — part of the CIA Triad.' },
+                { icon: '⚖️', title: 'Commensurate Risk', body: 'Security controls should match the level of risk. NIST guidelines formalize this principle.' },
+              ].map((c, i) => (
+                <div className="concept-card" key={i} style={{ padding: '1rem' }}>
+                  <div className="icon">{c.icon}</div>
+                  <h4>{c.title}</h4>
+                  <p>{c.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CIPHER TABS */}
+          <div className="card">
+            <h3>Interactive Cipher Playground</h3>
+            <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginBottom: '1.2rem' }}>
+              Substitution ciphers are educational tools — they demonstrate cryptographic concepts but provide <strong style={{ color: 'var(--red)' }}>no real-world security</strong>.
+            </p>
+
+            <div className="tabs">
+              {[['rot13','ROT13'],['caesar','Caesar Cipher'],['keyword','Keyword Cipher']].map(([id, label]) => (
+                <button key={id} className={`tab ${cipherTab===id?'active':''}`} onClick={() => setCipherTab(id)}>{label}</button>
+              ))}
+            </div>
+
+            {/* ROT13 */}
+            {cipherTab === 'rot13' && (
+              <div className="cipher-section fade-up">
+                <div style={{ fontSize: '.9rem', color: 'var(--muted)', lineHeight: 1.7 }}>
+                  <strong style={{ color: 'var(--gold)' }}>ROT13</strong> rotates each letter by 13 positions. Because the alphabet has 26 letters, applying ROT13 twice returns the original text — the same function encrypts and decrypts.
+                </div>
+                <div className="cipher-row">
+                  <div>
+                    <div className="cipher-label">Plaintext Input</div>
+                    <textarea className="cipher-input" rows={3} value={rot13Input}
+                      onChange={e => setRot13Input(e.target.value)} placeholder="Type something..." />
+                  </div>
+                  <div>
+                    <div className="cipher-label">ROT13 Output <span className="info-tag">symmetric</span></div>
+                    <div className="cipher-output">{rot13Result || <span style={{ color: 'var(--muted)' }}>…</span>}</div>
+                    <div style={{ marginTop: '.5rem', fontSize: '.78rem', color: 'var(--muted)' }}>
+                      Apply again to decode: <span style={{ color: 'var(--teal)', fontFamily: 'DM Mono, monospace' }}>{rot13(rot13Result)}</span>
+                    </div>
+                  </div>
+                </div>
+                <AlphaTable
+                  plainRow={'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')}
+                  cipherRow={rot13Alpha}
+                  highlight={getHighlight(rot13Input)}
+                />
+                <div style={{ fontSize: '.78rem', color: 'var(--muted)', marginTop: '.5rem' }}>
+                  ↑ Highlighted letters appear in your input. Teal row shows each letter's ROT13 substitution.
+                </div>
+              </div>
+            )}
+
+            {/* Caesar */}
+            {cipherTab === 'caesar' && (
+              <div className="cipher-section fade-up">
+                <div style={{ fontSize: '.9rem', color: 'var(--muted)', lineHeight: 1.7 }}>
+                  <strong style={{ color: 'var(--gold)' }}>Caesar Cipher</strong> shifts every letter by a fixed amount (the key). Julius Caesar used a shift of 3. ROT13 is a Caesar cipher with shift = 13.
+                </div>
+                <div className="key-row">
+                  <span className="key-label">Shift Key (ROT)</span>
+                  <input type="range" className="key-slider" min="1" max="25" value={caesarShift}
+                    onChange={e => setCaesarShift(Number(e.target.value))} />
+                  <span className="key-val">{caesarShift}</span>
+                  <button className={`btn ${caesarDecode ? 'teal' : ''}`}
+                    onClick={() => setCaesarDecode(d => !d)}>
+                    {caesarDecode ? '🔓 Decoding' : '🔐 Encoding'}
+                  </button>
+                </div>
+                <div className="cipher-row">
+                  <div>
+                    <div className="cipher-label">{caesarDecode ? 'Ciphertext Input' : 'Plaintext Input'}</div>
+                    <textarea className="cipher-input" rows={3} value={caesarInput}
+                      onChange={e => setCaesarInput(e.target.value)} placeholder="Type something..." />
+                  </div>
+                  <div>
+                    <div className="cipher-label">{caesarDecode ? 'Decoded Output' : 'Encoded Output'}</div>
+                    <div className="cipher-output">{caesarResult || <span style={{ color: 'var(--muted)' }}>…</span>}</div>
+                    <div style={{ marginTop: '.5rem', fontSize: '.78rem', color: 'var(--muted)' }}>
+                      Shift: {caesarShift} · {caesarDecode ? `Reverse shift: ${(26-caesarShift)%26}` : `Decode with shift: ${(26-caesarShift)%26}`}
+                    </div>
+                  </div>
+                </div>
+                <AlphaTable
+                  plainRow={'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')}
+                  cipherRow={caesarAlpha}
+                  highlight={getHighlight(caesarInput)}
+                />
+                <div style={{ fontSize: '.78rem', color: 'var(--muted)', marginTop: '.5rem' }}>
+                  ↑ Each plain letter maps to the letter {caesarShift} position(s) ahead in the alphabet.
+                </div>
+              </div>
+            )}
+
+            {/* Keyword */}
+            {cipherTab === 'keyword' && (
+              <div className="cipher-section fade-up">
+                <div style={{ fontSize: '.9rem', color: 'var(--muted)', lineHeight: 1.7 }}>
+                  <strong style={{ color: 'var(--gold)' }}>Keyword Cipher</strong> — type a secret keyword. The cipher alphabet is built by writing the keyword (no repeated letters) followed by the remaining letters of the alphabet. The key makes the cipher harder to crack.
+                </div>
+                <div className="key-row">
+                  <span className="key-label">Secret Key</span>
+                  <input className="keyword-input" value={kwKey}
+                    onChange={e => setKwKey(e.target.value.replace(/[^a-zA-Z]/g,'').toUpperCase().slice(0,12))}
+                    maxLength={12} placeholder="KEYWORD" />
+                  <button className={`btn ${kwDecode ? 'teal' : ''}`}
+                    onClick={() => setKwDecode(d => !d)}>
+                    {kwDecode ? '🔓 Decoding' : '🔐 Encoding'}
+                  </button>
+                </div>
+                <div className="cipher-row">
+                  <div>
+                    <div className="cipher-label">{kwDecode ? 'Ciphertext Input' : 'Plaintext Input'}</div>
+                    <textarea className="cipher-input" rows={3} value={kwInput}
+                      onChange={e => setKwInput(e.target.value)} placeholder="Type something..." />
+                  </div>
+                  <div>
+                    <div className="cipher-label">{kwDecode ? 'Decoded Output' : 'Encoded Output'}</div>
+                    <div className="cipher-output">{kwResult || <span style={{ color: 'var(--muted)' }}>…</span>}</div>
+                    <div style={{ marginTop: '.5rem', fontSize: '.78rem', color: 'var(--muted)' }}>
+                      Keyword: <span style={{ color: 'var(--gold)', fontFamily: 'DM Mono, monospace' }}>{kwKey || 'none'}</span>
+                    </div>
+                  </div>
+                </div>
+                <AlphaTable
+                  plainRow={'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')}
+                  cipherRow={kwAlpha}
+                  highlight={getHighlight(kwInput)}
+                />
+                <div style={{ fontSize: '.78rem', color: 'var(--muted)', marginTop: '.5rem' }}>
+                  ↑ Cipher alphabet derived from keyword "<span style={{ color: 'var(--gold)' }}>{kwKey}</span>". Change the key above to see the mapping shift.
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Real encryption note */}
+          <div className="card" style={{ marginTop: '1.5rem', borderColor: 'rgba(255,64,96,.3)', background: 'rgba(255,64,96,.05)' }}>
+            <h3 style={{ color: 'var(--red)' }}>Substitution Ciphers Are Not Safe!</h3>
+            <div className="cipher-row" style={{ marginTop: '.5rem' }}>
+              <div>
+                <div style={{ fontSize: '.9rem', color: 'var(--muted)', lineHeight: 1.75 }}>
+                  <strong style={{ color: 'var(--white)' }}>Why simple ciphers fail:</strong><br/>
+                  Letter frequency analysis easily breaks substitution ciphers. In English, 'E' appears ~13% of the time. An attacker counts letter frequencies in the ciphertext, maps the most common cipher-letter to 'E', and quickly unravels the message — even without knowing the key.
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: '.9rem', color: 'var(--muted)', lineHeight: 1.75 }}>
+                  <strong style={{ color: 'var(--white)' }}>Real-world encryption (AES-128):</strong><br/>
+                  Uses mathematical operations on 128-bit blocks of data, 10 rounds of SubBytes, ShiftRows, MixColumns, and AddRoundKey transformations. Brute-forcing AES-128 would take longer than the age of the universe on current hardware. It protects the CIA Triad's <em>Confidentiality</em> component.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer style={{ padding: '2.5rem 2rem', textAlign: 'center', borderTop: '1px solid var(--border)', marginTop: '3rem' }}>
+        <div style={{ fontFamily: 'Bebas Neue, cursive', fontSize: '1.1rem', color: 'var(--muted)', letterSpacing: '.12em' }}>
+          Week 08 &amp; 09 · Six Degrees of Separation · Encryption &amp; Cryptography
+        </div>
+        <div style={{ fontSize: '.75rem', color: 'var(--border)', marginTop: '.4rem' }}>
+          Interactive educational presentation · CS Concepts
+        </div>
+      </footer>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+/* ── NAV highlight on scroll ── */
+const navLinks = document.querySelectorAll('nav a[href^="#"]');
+const sections = ['hero','bacon','jackson','networks','encryption'];
+window.addEventListener('scroll', () => {
+  const pos = window.scrollY + 80;
+  let current = 'hero';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= pos) current = id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+</body>
+</html>
