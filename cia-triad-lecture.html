@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CIA Triad Lecture</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; color: #e6edf3; font-family: 'Courier New', monospace; min-height: 100vh; display: flex; flex-direction: column; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn 0.4s ease; }
+
+  /* Layout */
+  #topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 28px; border-bottom: 1px solid #30363d; background: #161b22; flex-shrink: 0; }
+  #slide-area { flex: 1; padding: 40px 56px; overflow: auto; }
+  #slide-inner { max-width: 900px; margin: 0 auto; height: 100%; }
+  #bottombar { display: flex; justify-content: space-between; align-items: center; padding: 16px 28px; border-top: 1px solid #30363d; background: #161b22; flex-shrink: 0; }
+
+  /* Top bar */
+  .topbar-brand { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+  #dot-nav { display: flex; align-items: center; gap: 8px; }
+  .nav-dot { height: 6px; border-radius: 3px; border: none; cursor: pointer; transition: all 0.2s; background: #30363d; width: 6px; padding: 0; }
+  .nav-dot.active { width: 20px; background: #6db33f; }
+  #slide-counter { color: #8b949e; font-size: 12px; }
+
+  /* Buttons */
+  .btn { padding: 9px 22px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px; cursor: pointer; border: 1px solid; font-weight: 700; transition: all 0.15s; }
+  .btn-primary { background: #6db33f; color: #0d1117; border-color: #6db33f; }
+  .btn-outline { background: transparent; color: #e6edf3; border-color: #8b949e; }
+  .btn-outline:disabled { color: #30363d; border-color: #30363d; cursor: default; }
+  .btn-ghost { background: transparent; border-color: #4fa3e0; color: #4fa3e0; }
+  .btn-ghost.revealed { background: #6db33f; color: #0d1117; border-color: #6db33f; }
+
+  /* Legend */
+  .legend { display: flex; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #8b949e; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  /* Slide content helpers */
+  .slide-row { display: flex; height: 100%; align-items: center; gap: 48px; }
+  .slide-col { flex: 1; }
+  .slide-tag { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 8px; }
+  .slide-title { font-family: Georgia, serif; line-height: 1.2; color: #e6edf3; margin-bottom: 16px; font-size: clamp(22px, 3vw, 38px); }
+  .slide-body { color: #8b949e; font-size: 14px; line-height: 1.7; margin-bottom: 20px; }
+  .slide-definition { color: #e6edf3; font-size: 14px; line-height: 1.7; margin-bottom: 20px; background: rgba(255,255,255,0.04); padding: 14px 16px; border-radius: 8px; border-left: 3px solid #4fa3e0; }
+  .bullet-list { list-style: none; }
+  .bullet-list li { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; font-size: 14px; color: #e6edf3; line-height: 1.6; }
+  .bullet-list li .bul { flex-shrink: 0; margin-top: 2px; }
+  .callout-box { border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 15px; font-weight: 700; }
+  .card { padding: 14px 18px; border-radius: 8px; background: rgba(255,255,255,0.04); margin-bottom: 12px; }
+
+  /* Network dots background */
+  .network-bg { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .network-bg svg.dots { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.12; }
+  .network-big-title { font-family: Georgia, serif; font-size: clamp(24px, 3.5vw, 48px); font-weight: 900; color: #e6edf3; line-height: 1.2; max-width: 700px; position: relative; z-index: 1; }
+
+  /* Activity slide */
+  .activity-step { display: flex; gap: 14px; align-items: flex-start; padding: 12px 16px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #30363d; background: rgba(255,255,255,0.04); }
+  .activity-step.dangerous { background: rgba(192,57,43,0.12); border-color: rgba(192,57,43,0.4); }
+  .activity-step.dangerous span.txt { color: #e57373; }
+  .activity-num { font-weight: 700; font-size: 12px; margin-top: 1px; }
+
+  /* Comic */
+  .comic-wrap { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+  .comic-box { border: 2px solid #30363d; border-radius: 8px; padding: 28px; max-width: 480px; background: #f9f9f9; }
+  .comic-inner { display: flex; gap: 20px; align-items: flex-start; }
+  .comic-lines p { font-family: 'Courier New', monospace; font-size: 13px; color: #111; line-height: 1.5; margin-bottom: 4px; }
+  .comic-caption { font-size: 12px; color: #8b949e; letter-spacing: 2px; text-transform: uppercase; }
+
+  /* Scenarios */
+  .scenarios-center { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; text-align: center; }
+  .pillar-cards { display: flex; gap: 20px; }
+  .pillar-card { padding: 20px 28px; background: rgba(255,255,255,0.04); border-radius: 12px; min-width: 140px; }
+  .pillar-card .icon { font-size: 28px; margin-bottom: 8px; }
+  .pillar-card .lbl { font-weight: 700; font-size: 13px; }
+
+  /* Layers */
+  .layers-center { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+  .layers-wrap { display: flex; gap: 24px; justify-content: center; }
+  .layer-stack { display: flex; flex-direction: column; gap: 3px; }
+  .layer-box { padding: 7px 20px; border-radius: 5px; width: 140px; text-align: center; font-size: 11px; color: #e6edf3; border: 1px solid #30363d; background: rgba(255,255,255,0.05); }
+  .layer-box.app { background: rgba(109,179,63,0.2); border-color: #6db33f; }
+  .layer-box.net { background: rgba(79,163,224,0.2); border-color: #4fa3e0; }
+  .layer-label { text-align: center; color: #8b949e; font-size: 11px; margin-top: 6px; }
+  .layers-legend { display: flex; gap: 24px; }
+  .layers-legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+  .layers-legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* Scenario question */
+  .scenario-box { padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; line-height: 1.7; }
+  .answer-box { margin-top: 14px; padding: 14px 18px; border-radius: 8px; border: 1px solid #6db33f; background: rgba(109,179,63,0.1); font-size: 14px; color: #6db33f; }
+  .discussion-item { display: flex; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.04); border-radius: 6px; margin-bottom: 8px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="topbar-brand">
+    <svg id="triad-mini" viewBox="0 0 260 240" width="32" height="30"></svg>
+    <span>CIA TRIAD</span>
+  </div>
+  <div id="dot-nav"></div>
+  <span id="slide-counter"></span>
+</div>
+
+<!-- SLIDE AREA -->
+<div id="slide-area">
+  <div id="slide-inner"></div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div id="bottombar">
+  <button class="btn btn-outline" id="btn-prev">← Prev</button>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#6db33f"></div>Confidentiality</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#c0392b"></div>Integrity</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e07b39"></div>Availability</div>
+  </div>
+  <button class="btn btn-primary" id="btn-next">Next →</button>
+</div>
+
+<script>
+const COLORS = {
+  confidentiality: '#6db33f',
+  integrity: '#c0392b',
+  availability: '#e07b39',
+  accent: '#4fa3e0',
+};
+
+const slides = [
+  { type:'title' },
+  { type:'activity' },
+  { type:'bold' },
+  { type:'content-arpanet' },
+  { type:'layers' },
+  { type:'triad-intro' },
+  { type:'pillar', pillar:'confidentiality' },
+  { type:'pillar', pillar:'integrity' },
+  { type:'comic' },
+  { type:'nonrepudiation' },
+  { type:'availability-discuss' },
+  { type:'availability-dos' },
+  { type:'scenarios' },
+  { type:'scenario-transcript' },
+  { type:'scenario-phone' },
+  { type:'security-controls' },
+];
+
+let current = 0;
+let activityStep = 0;
+let showAnswer = false;
+
+// ── SVG helpers ──────────────────────────────────────────────────────────────
+function triadSVG(highlight, size) {
+  const w = size, h = size * (240/260);
+  const col = (p) => highlight === p ? COLORS[p] : (highlight ? COLORS[p] : COLORS[p]);
+  const op = (p) => (highlight && highlight !== p) ? '0.3' : '1';
+  return `<svg viewBox="0 0 260 240" width="${w}" height="${h}" style="filter:drop-shadow(0 8px 24px rgba(0,0,0,.5))">
+    <polygon points="130,8 252,228 8,228" fill="${COLORS.availability}" opacity="${op('availability')}"/>
+    <polygon points="130,8 252,228 130,228" fill="${COLORS.integrity}" opacity="${op('integrity')}"/>
+    <polygon points="130,8 8,228 130,228" fill="${COLORS.confidentiality}" opacity="${op('confidentiality')}"/>
+    <polygon points="130,72 206,200 54,200" fill="#0d1117"/>
+    <text x="78" y="148" font-size="11" font-weight="700" fill="white" transform="rotate(-55 78 148)" text-anchor="middle" font-family="monospace">Confidentiality</text>
+    <text x="182" y="148" font-size="11" font-weight="700" fill="white" transform="rotate(55 182 148)" text-anchor="middle" font-family="monospace">Integrity</text>
+    <text x="130" y="222" font-size="11" font-weight="700" fill="white" text-anchor="middle" font-family="monospace">Availability</text>
+    <text x="130" y="152" font-size="13" font-weight="700" fill="#e6edf3" text-anchor="middle" font-family="monospace">Data</text>
+    <text x="130" y="168" font-size="13" font-weight="700" fill="#e6edf3" text-anchor="middle" font-family="monospace">Security</text>
+  </svg>`;
+}
+
+function arpanetSVG() {
+  const nodes = [
+    [60,110,'UCLA'],[75,120,'UCSB'],[55,105,'RAND'],[65,95,'SRI'],
+    [80,85,'STANFORD'],[72,100,'SDC'],[130,60,'UTAH'],
+    [200,75,'CARNEGIE'],[240,60,'MIT'],[250,65,'HARVARD'],
+    [245,55,'BBN'],[230,60,'LINCOLN'],[220,62,'CASE'],
+  ];
+  const edges = [[60,110,80,85],[60,110,75,120],[60,110,55,105],[80,85,130,60],[130,60,200,75],[200,75,240,60],[240,60,250,65],[240,60,245,55],[240,60,230,60],[240,60,220,62]];
+  let svg = `<svg viewBox="0 0 320 200" style="width:100%;max-width:320px;opacity:.8">
+    <rect width="320" height="200" fill="#161b22" rx="8"/>
+    <path d="M30,40 L290,40 L290,160 L200,170 L150,175 L80,165 L30,150 Z" fill="none" stroke="#30363d" stroke-width="1.5"/>`;
+  edges.forEach(([x1,y1,x2,y2]) => svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${COLORS.accent}" stroke-width=".8" opacity=".6"/>`);
+  nodes.forEach(([x,y,name]) => svg += `<circle cx="${x}" cy="${y}" r="4" fill="${COLORS.accent}"/><text x="${x+6}" y="${y+3}" font-size="6" fill="#8b949e" font-family="monospace">${name}</text>`);
+  svg += `</svg>`;
+  return svg;
+}
+
+function networkDotsSVG() {
+  const nodes = [];
+  // deterministic positions
+  const seed = [12,73,45,88,23,61,34,79,56,18,67,42,91,27,54,83];
+  for (let i=0;i<16;i++) nodes.push({ x: 5+(seed[i]*0.85), y: 5+(seed[(i+7)%16]*0.85) });
+  let lines='', circles='';
+  nodes.forEach((a,i) => {
+    nodes.slice(i+1).forEach(b => {
+      if (Math.hypot(a.x-b.x,a.y-b.y)<35) lines += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#4fa3e0" stroke-width=".5"/>`;
+    });
+    circles += `<circle cx="${a.x}" cy="${a.y}" r="1.5" fill="#4fa3e0"/>`;
+  });
+  return `<svg class="dots" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${lines}${circles}</svg>`;
+}
+
+function stickFigure() {
+  return `<svg width="60" height="80" viewBox="0 0 60 80" style="flex-shrink:0">
+    <circle cx="30" cy="14" r="10" fill="none" stroke="#111" stroke-width="2"/>
+    <line x1="30" y1="24" x2="30" y2="52" stroke="#111" stroke-width="2"/>
+    <line x1="30" y1="30" x2="10" y2="44" stroke="#111" stroke-width="2"/>
+    <line x1="30" y1="30" x2="50" y2="44" stroke="#111" stroke-width="2"/>
+    <line x1="30" y1="52" x2="14" y2="72" stroke="#111" stroke-width="2"/>
+    <line x1="30" y1="52" x2="46" y2="72" stroke="#111" stroke-width="2"/>
+    <rect x="40" y="38" width="14" height="20" rx="2" fill="none" stroke="#111" stroke-width="1.5"/>
+  </svg>`;
+}
+
+// ── Slide renderers ──────────────────────────────────────────────────────────
+const renderers = {
+
+  title: () => `
+    <div class="slide-row">
+      <div class="slide-col">
+        <div class="slide-tag" style="color:#8b949e">Lecture</div>
+        <h1 class="slide-title" style="font-size:clamp(28px,4vw,52px)">Welcome to the<br><span style="color:#6db33f">CIA</span> Triad</h1>
+        <ul class="bullet-list">
+          ${['The insecurity of the early Internet','Everything starts with the CIA (triad)','What is at risk in these scenarios?'].map(b=>`
+          <li><span class="bul" style="color:#4fa3e0">›</span><span>${b}</span></li>`).join('')}
+        </ul>
+      </div>
+      <div style="flex-shrink:0">${triadSVG(null,240)}</div>
+    </div>`,
+
+  activity: () => {
+    const steps = [
+      { text:'Write your name and NetID.', dangerous:false },
+      { text:'Write your current GPA.', dangerous:false },
+      { text:'Write the name of your first crush.', dangerous:false },
+      { text:'Write the password for your bank account.', dangerous:true },
+    ];
+    const visible = steps.slice(0, activityStep+1);
+    return `
+    <div class="slide-row">
+      <div class="slide-col">
+        <h2 class="slide-title">Before We Get Started...</h2>
+        <p class="slide-body" style="margin-bottom:28px">On the piece of paper you were given:</p>
+        <div id="activity-steps">
+          ${visible.map((s,i)=>`
+          <div class="activity-step${s.dangerous?' dangerous':''} fade-in">
+            <span class="activity-num" style="color:${s.dangerous?COLORS.integrity:COLORS.accent}">${i+1}.</span>
+            <span class="txt">${s.text}</span>
+          </div>`).join('')}
+        </div>
+        ${activityStep < 3 ? `<button class="btn btn-outline" style="margin-top:20px;color:${COLORS.accent};border-color:${COLORS.accent}" onclick="revealStep()">Reveal next →</button>` : ''}
+      </div>
+      <div style="flex-shrink:0">${triadSVG(null,200)}</div>
+    </div>`;
+  },
+
+  bold: () => `
+    <div class="network-bg">
+      ${networkDotsSVG()}
+      <h1 class="network-big-title">Now fold the page in half and pass it (across a network of classmates) to the front of the lecture hall?</h1>
+    </div>`,
+
+  'content-arpanet': () => `
+    <div class="slide-row">
+      <div class="slide-col">
+        <h2 class="slide-title">The Early Internet Was Insecure</h2>
+        <p class="slide-body">TCP/IP included no encryption. It was added later.</p>
+        <ul class="bullet-list">
+          <li><span class="bul" style="color:#6db33f">•</span><span><strong style="color:#e6edf3">Application layer:</strong> TLS (Transport Layer Security) provides encrypted application traffic (e.g., HTTPS).</span></li>
+          <li><span class="bul" style="color:#6db33f">•</span><span><strong style="color:#e6edf3">IP layer:</strong> IPsec (1998) — a set of tools to encrypt IP packets (e.g., your VPN).</span></li>
+        </ul>
+      </div>
+      <div style="flex-shrink:0">${arpanetSVG()}</div>
+    </div>`,
+
+  layers: () => `
+    <div class="layers-center">
+      <h2 class="slide-title" style="text-align:center">Encryption at Different Network Layers</h2>
+      <div class="layers-wrap">
+        ${['Sender','Receiver'].map(side=>`
+        <div class="layer-stack">
+          ${'Application,Presentation,Session,Transport,Network,Data-Link,Physical'.split(',').map((l,i)=>`
+          <div class="layer-box${i===0?' app':i===4?' net':''}">${l}</div>`).join('')}
+          <div class="layer-label">${side}</div>
+        </div>`).join('')}
+      </div>
+      <div class="layers-legend">
+        <div class="layers-legend-item"><div class="layers-legend-dot" style="background:#6db33f"></div><span style="color:#6db33f">Application-layer TLS (HTTPS)</span></div>
+        <div class="layers-legend-item"><div class="layers-legend-dot" style="background:#4fa3e0"></div><span style="color:#4fa3e0">Network-layer IPsec (VPNs)</span></div>
+      </div>
+    </div>`,
+
+  'triad-intro': () => `
+    <div class="slide-row">
+      <div class="slide-col">
+        <h2 class="slide-title">The CIA Triad</h2>
+        <p class="slide-body">The three pillars of Information Security (or Data Security, Cyber Security, etc.)</p>
+        <ul class="bullet-list">
+          <li><span class="bul" style="color:#e07b39">•</span><span>Not mutually-exclusive; they are overlapping concepts and they overlap in practice.</span></li>
+          <li><span class="bul" style="color:#e07b39">•</span><span>All <strong style="color:#e6edf3">security controls</strong> protect one or more of the elements in the CIA Triad.</span></li>
+          <li><span class="bul" style="color:#e07b39">•</span><span>Security controls: Technical (e.g., passwords) and organizational (e.g., insurance).</span></li>
+        </ul>
+      </div>
+      <div style="flex-shrink:0">${triadSVG(null,240)}</div>
+    </div>`,
+
+  pillar: (slide) => {
+    const p = slide.pillar;
+    const c = COLORS[p];
+    const configs = {
+      confidentiality: {
+        tag:'Confidentiality', title:'The CIA Triad: Confidentiality',
+        callout:'Do you want me to read what you wrote?',
+        def:'Preserving authorized restrictions on information access and disclosure, including means for protecting personal privacy and proprietary information.',
+        bullets:['Authorized?','Access and disclosure?','Personal privacy?'],
+      },
+      integrity: {
+        tag:'Integrity', title:'The CIA Triad: Integrity',
+        callout:null,
+        def:'Guarding against improper modification and includes ensuring information non-repudiation and authenticity.',
+        bullets:['Improper modification?','Non-repudiation? Authentic? Example...'],
+      },
+    };
+    const cfg = configs[p] || {};
+    return `
+    <div class="slide-row">
+      <div class="slide-col">
+        <div class="slide-tag" style="color:${c}">${cfg.tag||p}</div>
+        <h2 class="slide-title">${cfg.title||p}</h2>
+        ${cfg.callout?`<div class="callout-box" style="background:rgba(109,179,63,.15);border:1px solid ${c};color:${c}">${cfg.callout}</div>`:''}
+        <div class="slide-definition" style="border-left-color:${c}">${cfg.def||''}</div>
+        ${cfg.bullets?`<ul class="bullet-list">${cfg.bullets.map(b=>`<li><span class="bul" style="color:${c}">•</span><span style="color:#8b949e">${b}</span></li>`).join('')}</ul>`:''}
+      </div>
+      <div style="flex-shrink:0">${triadSVG(p,220)}</div>
+    </div>`;
+  },
+
+  comic: () => `
+    <div class="comic-wrap">
+      <div class="comic-box">
+        <div class="comic-inner">
+          <div class="comic-lines">
+            <p>WELCOME TO YOUR FINAL EXAM.</p>
+            <p>THE EXAM IS NOW OVER.</p>
+            <p>I'M AFRAID ALL OF YOU FAILED.</p>
+            <p>YOUR GRADES HAVE BEEN STORED ON OUR DEPARTMENT SERVER AND WILL BE SUBMITTED TOMORROW.</p>
+            <p>CLASS DISMISSED.</p>
+          </div>
+          ${stickFigure()}
+        </div>
+      </div>
+      <p class="comic-caption">Cybersecurity Final Exams</p>
+    </div>`,
+
+  nonrepudiation: () => `
+    <div class="slide-row">
+      <div class="slide-col">
+        <h2 class="slide-title">Non-Repudiation</h2>
+        <div class="slide-definition" style="border-left-color:#4fa3e0">
+          Assurance that the sender of information is provided with <strong>proof</strong> of delivery and the recipient is provided with <strong>proof</strong> of the sender's identity, so neither can later deny having processed the information.
+        </div>
+        <p class="slide-body" style="margin-bottom:12px">The goal is to avoid situations like these:</p>
+        <ul class="bullet-list">
+          <li><span class="bul" style="color:#e07b39">•</span><span>"I didn't get that message."</span></li>
+          <li><span class="bul" style="color:#e07b39">•</span><span>"I didn't send you that message."</span></li>
+        </ul>
+      </div>
+      <div style="flex-shrink:0;font-size:80px;text-align:center;opacity:.8">💬</div>
+    </div>`,
+
+  'availability-discuss': () => `
+    <div class="slide-row">
+      <div class="slide-col">
+        <div class="slide-tag" style="color:#e07b39">Availability</div>
+        <h2 class="slide-title">The CIA Triad: Availability</h2>
+        <div class="slide-definition" style="border-left-color:#e07b39">Ensuring timely and reliable access to and use of information.</div>
+        <div class="discussion-item" style="color:#e57373"><span style="color:#e07b39">⚠</span>Destroy the information on your piece of paper.</div>
+        <div class="discussion-item"><span style="color:#e07b39">?</span>Is it an attack on the availability if you destroy the information?</div>
+        <div class="discussion-item"><span style="color:#e07b39">?</span>Does it have to be a malicious attack?</div>
+      </div>
+      <div style="flex-shrink:0">${triadSVG('availability',220)}</div>
+    </div>`,
+
+  'availability-dos': () => `
+    <div class="slide-row">
+      <div class="slide-col">
+        <div class="slide-tag" style="color:#e07b39">Availability</div>
+        <h2 class="slide-title">The CIA Triad: Availability</h2>
+        <div class="slide-definition" style="border-left-color:#e07b39">Ensuring timely and reliable access to and use of information.</div>
+        <ul class="bullet-list">
+          <li><span class="bul" style="color:#e07b39">•</span><span><strong style="color:#c0392b">Denial of Service (DoS):</strong> The prevention of authorized access to resources or the delaying of time-critical operations.</span></li>
+          <li><span class="bul" style="color:#e07b39">•</span><span>Is the website down or is it your Internet access?</span></li>
+          <li><span class="bul" style="color:#e07b39">•</span><span>Another resource to answer: "is it down for everyone or just for me?"<br><span style="color:#4fa3e0;font-size:12px">downforeveryoneorjustme.com</span></span></li>
+        </ul>
+      </div>
+      <div style="flex-shrink:0">${triadSVG('availability',220)}</div>
+    </div>`,
+
+  scenarios: () => `
+    <div class="scenarios-center">
+      <h2 class="slide-title">CIA Triad: Examples &amp; Scenarios</h2>
+      <div class="pillar-cards">
+        ${[['Confidentiality','#6db33f','🔒'],['Integrity','#c0392b','✅'],['Availability','#e07b39','⚡']].map(([lbl,c,icon])=>`
+        <div class="pillar-card" style="border:1px solid ${c}">
+          <div class="icon">${icon}</div>
+          <div class="lbl" style="color:${c}">${lbl}</div>
+        </div>`).join('')}
+      </div>
+      ${triadSVG(null,180)}
+    </div>`,
+
+  'scenario-transcript': () => `
+    <div class="slide-row">
+      <div class="slide-col">
+        <h2 class="slide-title">Example: Your Academic Transcript</h2>
+        <p class="slide-body">Take a moment to think about what each means in the context of your academic transcript.</p>
+        ${[['Confidentiality','#6db33f','Think "secrets" and "disclosure" and "authorization."'],
+           ['Integrity','#c0392b','Think "changes" and "authenticity."'],
+           ['Availability','#e07b39','"Is it down?"']].map(([lbl,c,hint])=>`
+        <div class="card" style="border:1px solid ${c}22;margin-bottom:14px">
+          <div style="color:${c};font-weight:700;font-size:13px;margin-bottom:4px">${lbl}</div>
+          <div style="color:#8b949e;font-size:12px">${hint}</div>
+        </div>`).join('')}
+      </div>
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px">
+        ${triadSVG(null,200)}
+        <div style="font-size:11px;color:#8b949e;text-align:center;max-width:200px">Academic records involve all three pillars</div>
+      </div>
+    </div>`,
+
+  'scenario-phone': () => `
+    <div class="slide-row">
+      <div class="slide-col">
+        <h2 class="slide-title">Example: Your Phone</h2>
+        <div class="scenario-box" style="background:rgba(79,163,224,.08);border:1px solid #4fa3e040">
+          <strong style="color:#4fa3e0">Scenario: </strong>That person in your study group who you thought was cool? They're not so cool. It turns out they have been running a shoulder-surfing attack on you and now they know how to unlock your phone.
+        </div>
+        <div class="card" style="border-color:#30363d;margin-bottom:10px;color:#8b949e;font-size:13px">• What has been attacked or compromised in this scenario?</div>
+        <div style="padding:10px 14px;border-radius:6px;background:rgba(192,57,43,.1);border:1px solid #c0392b40;color:#c0392b;font-size:12px;margin-bottom:16px">⚠ Do not add extra things to my scenarios!</div>
+        <button class="btn btn-ghost${showAnswer?' revealed':''}" id="answer-btn" onclick="toggleAnswer()">
+          ${showAnswer ? 'Hide answer' : 'Reveal answer'}
+        </button>
+        ${showAnswer ? `<div class="answer-box fade-in">✓ Confidentiality — the passcode (a secret) was observed without authorization.</div>` : ''}
+      </div>
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:12px">
+        <div style="font-size:72px">📱</div>
+        <div style="font-size:11px;color:#8b949e;text-align:center">Shoulder-surfing<br>= observing passcode</div>
+      </div>
+    </div>`,
+
+  'security-controls': () => `
+    <div class="slide-row">
+      <div class="slide-col">
+        <h2 class="slide-title">Security Controls</h2>
+        <p class="slide-body">To implement security protections we need <strong style="color:#c0392b">security controls</strong>. See NIST reading for details.</p>
+        <ul class="bullet-list">
+          <li><span class="bul" style="color:#6db33f">•</span><span>Not <strong style="color:#c0392b">only</strong> technical controls: Management, operational, <strong style="color:#c0392b">and</strong> technical controls.</span></li>
+          <li><span class="bul" style="color:#6db33f">•</span><span>Next topic: Encryption as a technical security control.</span></li>
+        </ul>
+      </div>
+      <div style="flex-shrink:0;font-size:80px;text-align:center;opacity:.8">🔐</div>
+    </div>`,
+};
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function render() {
+  const slide = slides[current];
+  const r = renderers[slide.type];
+  document.getElementById('slide-inner').innerHTML = r ? (typeof r === 'function' ? r(slide) : r) : '<p>Slide</p>';
+
+  // mini triad
+  document.getElementById('triad-mini').innerHTML = triadSVG(null, 32).replace(/<svg[^>]*>/,'').replace('</svg>','');
+
+  // dots
+  const dotNav = document.getElementById('dot-nav');
+  dotNav.innerHTML = slides.map((_,i)=>`<button class="nav-dot${i===current?' active':''}" onclick="goto(${i})"></button>`).join('');
+
+  // counter
+  document.getElementById('slide-counter').textContent = `${current+1} / ${slides.length}`;
+
+  // nav buttons
+  const prev = document.getElementById('btn-prev');
+  const next = document.getElementById('btn-next');
+  prev.disabled = current === 0;
+  if (current === slides.length-1) { next.className='btn btn-outline'; next.disabled=true; }
+  else { next.className='btn btn-primary'; next.disabled=false; }
+}
+
+function goto(n) { current=n; activityStep=0; showAnswer=false; render(); }
+function revealStep() { if(activityStep<3){ activityStep++; render(); } }
+function toggleAnswer() { showAnswer=!showAnswer; render(); }
+
+document.getElementById('btn-prev').addEventListener('click', ()=>{ if(current>0){ current--; activityStep=0; showAnswer=false; render(); }});
+document.getElementById('btn-next').addEventListener('click', ()=>{ if(current<slides.length-1){ current++; activityStep=0; showAnswer=false; render(); }});
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') { if(current<slides.length-1){ current++; activityStep=0; showAnswer=false; render(); }}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') { if(current>0){ current--; activityStep=0; showAnswer=false; render(); }}
+});
+
+render();
+</script>
+</body>
+</html>
