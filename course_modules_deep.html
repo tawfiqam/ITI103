@@ -1,0 +1,168 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;padding:12px 0}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;display:flex;flex-direction:column}
+.card-header{padding:1rem 1.25rem 0.75rem;cursor:pointer;user-select:none}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;margin-bottom:8px}
+.card-header h3{font-size:15px;font-weight:500;color:var(--color-text-primary);line-height:1.35}
+.card-header p.lead{font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-top:6px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.toggle-btn{font-size:12px;color:var(--color-text-tertiary);background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px}
+.arrow{display:inline-block;transition:transform 0.2s;font-size:10px}
+.arrow.open{transform:rotate(180deg)}
+.card-body{padding:0 1.25rem;max-height:0;overflow:hidden;transition:max-height 0.35s ease,padding 0.2s}
+.card-body.open{max-height:900px;padding:0 1.25rem 1.1rem}
+.section-label{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.07em;margin:12px 0 5px}
+.card-body p{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.pill-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.pill{font-size:11px;padding:2px 8px;border-radius:20px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:10px 0}
+.conn-item{font-size:12px;color:var(--color-text-secondary);line-height:1.55;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.conn-item:last-child{border-bottom:none}
+.conn-item strong{font-weight:500;color:var(--color-text-primary)}
+.ask-btn{margin-top:10px;font-size:12px;background:none;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:5px 10px;cursor:pointer;color:var(--color-text-secondary);width:100%;text-align:left}
+.ask-btn:hover{background:var(--color-background-secondary)}
+</style>
+
+<h2 class="sr-only">Interactive deep-dive module summaries with connections and key questions</h2>
+<div class="grid" id="grid"></div>
+
+<script>
+const modules = [
+  {
+    theme:"Internet & Web", themeColor:"#E6F1FB", themeText:"#0C447C",
+    title:"Internet Protocols & the Web (CERN)",
+    lead:"Tim Berners-Lee invented the Web at CERN to solve information loss in large research networks — accidentally creating global communication infrastructure.",
+    deep:"The original 1989 proposal described a distributed hypertext system where nodes (documents) are connected by links, allowing non-linear navigation of information. The OSI model's 7-layer abstraction — from physical cables to application-layer HTTP — explains how every web request travels. TCP/IP is the practical implementation: IP handles addressing, TCP guarantees delivery. A URL encodes protocol, host, path, and query — every click is a structured command.",
+    keyTerms:["OSI 7 layers","TCP/IP stack","HTTP/HTTPS","URL structure","Hypertext","Distributed systems","Node & link","CERN / Berners-Lee"],
+    questions:["What problem was the Web originally designed to solve at CERN?","How do the OSI and TCP/IP models differ in purpose?","What information is encoded in a URL?","Why is hypertext fundamentally different from linear text?"],
+    connections:[
+      {to:"Network Science", why:"Both deal with nodes and links — the Web is itself a massive network whose structure is studied using the same centrality metrics."},
+      {to:"Privacy", why:"Every HTTP request is logged. The metadata of who you contact, when, and how often is collected at the protocol level — before any encryption."},
+      {to:"CIA Triad", why:"HTTPS is the application of Confidentiality (encryption) and Integrity (TLS certificates) at the protocol layer."}
+    ],
+    lab:"Python Practice 2 · Markup & Markdown assignment",
+    prompt:"Explain how HTTP and the OSI model connect to each other in plain terms"
+  },
+  {
+    theme:"Networks & Society", themeColor:"#E1F5EE", themeText:"#085041",
+    title:"Links, Networks & Six Degrees",
+    lead:"Social media may be reshaping Dunbar's Number — the ~150-relationship ceiling proposed by anthropologists — while Network Science reveals hidden structure in human connection.",
+    deep:"Dunbar's Number (≈150) represents the cognitive limit for maintaining stable social relationships, rooted in primate brain size studies. Network Science uses graph theory to measure how information and influence travel: degree centrality counts connections, betweenness centrality finds 'bridge' nodes. The Hollywood universe experiment shows that a few highly-connected actors (hubs) collapse path lengths dramatically — the same topology underlies disease spread, viral content, and supply chain fragility.",
+    keyTerms:["Dunbar's Number","Centrality","Graph theory","Hubs & bridges","Six degrees","Degrees of connection","Network topology","Viral spread"],
+    questions:["What is Dunbar's Number and what does it predict about online friendships?","What is centrality and why does it matter in a network?","Why is Samuel L. Jackson the 'center' of the Hollywood universe?","How does the structure of a network affect how fast something spreads through it?"],
+    connections:[
+      {to:"Internet Protocols", why:"The Web is a hyperlinked network — its topology (hubs, long tails) was studied by Barabási and others using exactly the same graph tools."},
+      {to:"Weakest Link", why:"Social engineers exploit network structure — targeting bridge nodes (people with access to many systems) for maximum leverage."},
+      {to:"Privacy", why:"Your social graph — who you know and talk to — is valuable metadata even if no message content is ever read."}
+    ],
+    lab:"Python Practice 3",
+    prompt:"Explain how Dunbar's Number relates to modern social media platforms and what it predicts"
+  },
+  {
+    theme:"Cybersecurity", themeColor:"#FAECE7", themeText:"#993C1D",
+    title:"CIA Triad — Foundations of Security",
+    lead:"Confidentiality, Integrity, and Availability form the three-part test applied to every security decision, from password policies to disaster recovery plans.",
+    deep:"Confidentiality prevents unauthorized disclosure — encryption, access controls, and need-to-know policies all serve this principle. Integrity ensures data isn't altered without authorization — checksums, digital signatures, and audit logs enforce it. Availability ensures systems work when needed — redundancy, backups, and DDoS mitigation protect it. NIST SP 800-12 adds risk management: security controls must be commensurate with risk, and societal/cultural factors shape what is acceptable. The adversarial threat landscape includes insiders, malicious hackers, and nation-states.",
+    keyTerms:["Confidentiality","Integrity","Availability","NIST SP 800-12","Risk management","Threat modeling","Access control","Adversarial threats"],
+    questions:["How does the CIA Triad apply to a real-world scenario like a hospital database?","What does 'commensurate with risk' mean in security policy?","What distinguishes an insider threat from an external adversary?","How do you balance Availability against Confidentiality?"],
+    connections:[
+      {to:"Internet Protocols", why:"HTTPS directly implements Confidentiality (encryption) and Integrity (certificates). Availability is why CDNs and load balancers exist."},
+      {to:"Weakest Link", why:"Social engineering attacks most often target Confidentiality — tricking users into revealing credentials bypasses all technical controls."},
+      {to:"Privacy", why:"Confidentiality in the CIA Triad and privacy rights share the same core value: controlling who sees your information."}
+    ],
+    lab:"Python Practice 4",
+    prompt:"Give me a concrete example of how the CIA Triad applies to protecting a school's student records system"
+  },
+  {
+    theme:"Cybersecurity", themeColor:"#FAECE7", themeText:"#993C1D",
+    title:"The Weakest Link — Social Engineering",
+    lead:"No firewall protects against a convincing phone call. Humans are exploitable at scale, and the same manipulation principles appear in UI dark patterns as in phishing attacks.",
+    deep:"Social engineering pre-dates computers — con artists, spies, and fraudsters have always exploited trust, authority, urgency, and reciprocity. Phishing, pretexting, vishing, and baiting all follow the same pattern: establish credibility, create urgency, request action. Penetration testers legitimately use these techniques to expose organizational weaknesses before attackers do. Dark patterns extend the same playbook into product design: confirmshaming, roach motels, hidden unsubscribe flows, and misdirection exploit cognitive biases to extract money or data — legally.",
+    keyTerms:["Social engineering","Phishing / vishing","Pretexting","Penetration testing","Dark patterns","Confirmshaming","Nudging","Cognitive bias exploitation"],
+    questions:["What makes social engineering attacks so effective against technical defenses?","What is the difference between 'nudging' and manipulation in UX design?","Why is confirmshaming considered an unethical dark pattern?","How do penetration testers use social engineering ethically?"],
+    connections:[
+      {to:"CIA Triad", why:"Social engineering primarily attacks Confidentiality — credentials obtained by deception bypass encryption and access controls entirely."},
+      {to:"Network Science", why:"Attackers map organizational networks to find high-betweenness targets (admins, executives) who have access to the most systems."},
+      {to:"Privacy", why:"Dark patterns are frequently used to extract consent for data collection that users wouldn't knowingly grant."}
+    ],
+    lab:"Python Practice 5",
+    prompt:"Explain the connection between social engineering attacks and dark patterns in UI design — what do they have in common?"
+  },
+  {
+    theme:"Privacy", themeColor:"#EEEDFE", themeText:"#3C3489",
+    title:"Privacy Rights, Surveillance & Digital Identity",
+    lead:"You leave a unique digital fingerprint everywhere you go online — and governments and corporations are collecting it, whether or not you've done anything wrong.",
+    deep:"The NSA's Utah Data Center (operational 2014, $2B) stores vast quantities of metadata: call records, email headers, search queries, location data, financial transactions. The key insight is that metadata — who you called, when, for how long — can be more revealing than content. Your browser fingerprint (OS, fonts, screen size, plugins) is statistically unique enough to track you without cookies. 'You are not so unique' is both reassuring (you blend into a crowd) and alarming (the crowd is still tracked). Privacy in public challenges the intuition that observation without intrusion is harmless.",
+    keyTerms:["Metadata","Browser fingerprinting","NSA Utah Data Center","Mass surveillance","EFF","Digital identity","Privacy in public","amiunique.org"],
+    questions:["Why is metadata sometimes more revealing than the content of communications?","What makes a browser fingerprint unique, and how is it used for tracking?","Do you have a reasonable expectation of privacy in a public space? Why or why not?","What is the EFF's argument for why metadata collection matters?"],
+    connections:[
+      {to:"Internet Protocols", why:"Metadata is collected at the protocol layer — IP addresses, DNS queries, TCP handshakes — before any application-level encryption applies."},
+      {to:"CIA Triad", why:"Mass surveillance by governments directly conflicts with the Confidentiality principle when applied to citizens rather than data systems."},
+      {to:"Weakest Link", why:"Dark patterns in consent flows and cookie banners are a commercial form of the same surveillance, harvesting data users don't knowingly share."}
+    ],
+    lab:"Privacy in Public field experiment (train station visit)",
+    prompt:"Explain why metadata can be more revealing than message content, with a concrete example"
+  },
+  {
+    theme:"Lecture Slides", themeColor:"#F1EFE8", themeText:"#444441",
+    title:"Lecture: CIA Triad (PDF — unreadable)",
+    lead:"The uploaded PDF appears corrupted and could not be parsed. The module summary above is drawn from the course description text instead.",
+    deep:"Expected slide content would typically expand on: the three CIA properties with concrete attack/defense examples per property, a risk matrix (likelihood × impact), the NIST threat taxonomy (adversarial, accidental, structural, environmental), and how organizations prioritize controls under resource constraints. Re-upload a readable PDF to pull in slide-specific detail.",
+    keyTerms:["CIA Triad (lecture)","Risk matrix","NIST threat taxonomy","Security controls","Defense in depth"],
+    questions:["What attack scenario would violate Integrity but not Confidentiality?","How does the NIST risk matrix weigh likelihood against impact?","What is 'defense in depth' and why is a single control never enough?"],
+    connections:[
+      {to:"CIA Triad module", why:"Direct lecture companion — would provide worked examples and visual frameworks for the reading material."},
+      {to:"Weakest Link", why:"Lecture likely covers the human layer of the CIA Triad threat model."}
+    ],
+    lab:"Upload a working PDF to expand this summary",
+    prompt:"Explain the CIA Triad with one concrete attack example for each of the three properties"
+  }
+];
+
+const grid = document.getElementById('grid');
+
+modules.forEach((m,i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const body_id = 'body'+i;
+  const arrow_id = 'arrow'+i;
+
+  card.innerHTML = `
+    <div class="card-header" onclick="toggle(${i})">
+      <span class="tag" style="background:${m.themeColor};color:${m.themeText}">${m.theme}</span>
+      <h3>${m.title}</h3>
+      <p class="lead">${m.lead}</p>
+      <div class="toggle-row">
+        <button class="toggle-btn" id="btn${i}">Dig deeper <span class="arrow" id="${arrow_id}">▼</span></button>
+      </div>
+    </div>
+    <div class="card-body" id="${body_id}">
+      <p>${m.deep}</p>
+      <div class="section-label">Key terms</div>
+      <div class="pill-row">${m.keyTerms.map(t=>`<span class="pill">${t}</span>`).join('')}</div>
+      <div class="section-label">Questions to consider</div>
+      ${m.questions.map(q=>`<div class="conn-item">${q}</div>`).join('')}
+      <div class="section-label">Connections to other modules</div>
+      ${m.connections.map(c=>`<div class="conn-item"><strong>${c.to}:</strong> ${c.why}</div>`).join('')}
+      <div class="divider"></div>
+      <div class="section-label">Lab / assignment</div>
+      <p style="font-size:12px;">${m.lab}</p>
+      <button class="ask-btn" onclick="sendPrompt('${m.prompt.replace(/'/g,"\\'")}') ">Ask Claude: "${m.prompt}" ↗</button>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+function toggle(i){
+  const body = document.getElementById('body'+i);
+  const arrow = document.getElementById('arrow'+i);
+  const btn = document.getElementById('btn'+i);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+  btn.childNodes[0].textContent = isOpen ? 'Dig deeper ' : 'Collapse ';
+}
+</script>
