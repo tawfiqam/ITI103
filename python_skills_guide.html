@@ -1,0 +1,416 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: transparent; }
+  .app { max-width: 900px; padding: 1.5rem 0; }
+  .top-nav { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .nav-btn { padding: 8px 16px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-secondary); font-size: 13px; cursor: pointer; transition: all 0.15s; font-family: var(--font-sans); }
+  .nav-btn:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .nav-btn.active { background: #0F6E56; color: #E1F5EE; border-color: #0F6E56; font-weight: 500; }
+  .section-header { margin-bottom: 1.25rem; }
+  .challenge-tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 99px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); margin-bottom: 8px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .section-title { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .section-desc { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 1.25rem; }
+  .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+  .skill-chip { padding: 8px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); }
+  .skill-chip .skill-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .skill-chip .skill-desc { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .skill-chip.teal { border-left: 3px solid #1D9E75; }
+  .skill-chip.amber { border-left: 3px solid #BA7517; }
+  .skill-chip.blue { border-left: 3px solid #378ADD; }
+  .skill-chip.purple { border-left: 3px solid #7F77DD; }
+  .skill-chip.coral { border-left: 3px solid #D85A30; }
+  .lesson { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); margin-bottom: 12px; overflow: hidden; }
+  .lesson-header { padding: 12px 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+  .lesson-header:hover { background: var(--color-background-secondary); }
+  .lesson-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: flex; align-items: center; gap: 8px; }
+  .lesson-badge { font-size: 11px; padding: 2px 8px; border-radius: 99px; }
+  .badge-teal { background: #E1F5EE; color: #0F6E56; }
+  .badge-amber { background: #FAEEDA; color: #854F0B; }
+  .badge-blue { background: #E6F1FB; color: #185FA5; }
+  .badge-purple { background: #EEEDFE; color: #534AB7; }
+  .badge-coral { background: #FAECE7; color: #993C1D; }
+  .chevron { font-size: 12px; color: var(--color-text-tertiary); transition: transform 0.2s; }
+  .chevron.open { transform: rotate(180deg); }
+  .lesson-body { padding: 0 16px 16px; border-top: 0.5px solid var(--color-border-tertiary); }
+  .lesson-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.65; padding: 10px 0 8px; }
+  pre { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; font-family: var(--font-mono); font-size: 12px; overflow-x: auto; border: 0.5px solid var(--color-border-tertiary); line-height: 1.7; }
+  .kw { color: #7F77DD; }
+  .fn { color: #1D9E75; }
+  .str { color: #BA7517; }
+  .cm { color: var(--color-text-tertiary); font-style: italic; }
+  .num { color: #D85A30; }
+  .code-label { font-size: 11px; color: var(--color-text-tertiary); font-family: var(--font-mono); margin-bottom: 4px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 580px) { .two-col { grid-template-columns: 1fr; } .skills-grid { grid-template-columns: 1fr 1fr; } }
+  .callout { background: var(--color-background-secondary); border-left: 3px solid #1D9E75; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; padding: 10px 14px; margin: 8px 0; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .callout.warn { border-left-color: #BA7517; }
+  .callout.info { border-left-color: #378ADD; }
+  .progress-row { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+  .prog-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-border-secondary); }
+  .prog-dot.done { background: #1D9E75; }
+  .overview-card { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; border: 0.5px solid var(--color-border-tertiary); }
+  .ov-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .ov-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .ov-skills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .ov-tag { font-size: 11px; padding: 2px 7px; border-radius: 99px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); }
+</style>
+
+<div class="app">
+  <h2 class="sr-only">Python skills guide for Challenges I, II, and III</h2>
+  <div class="top-nav" id="nav"></div>
+  <div id="content"></div>
+</div>
+
+<script>
+const challenges = [
+  {
+    id: 'overview',
+    label: 'Overview',
+    tag: 'Course Guide',
+    title: 'Python skills roadmap',
+    desc: 'Three coding challenges, each requiring a distinct set of Python skills. Click a challenge below to explore the skills you need to master it.',
+    content: 'overview'
+  },
+  {
+    id: 'c1',
+    label: 'Challenge I',
+    tag: 'FA Cup Data',
+    title: 'Working with lists of dictionaries',
+    desc: 'Challenge I gives you a large dataset of FA Cup results stored as a list of dictionaries. You must iterate, count, filter, and format the output clearly.',
+    skills: [
+      { name: 'Lists of dicts', desc: 'Nesting dicts inside lists', color: 'teal', badge: 'badge-teal' },
+      { name: 'for loops', desc: 'Iterating over collections', color: 'teal', badge: 'badge-teal' },
+      { name: 'set()', desc: 'Getting unique values', color: 'amber', badge: 'badge-amber' },
+      { name: '.append()', desc: 'Building lists dynamically', color: 'teal', badge: 'badge-teal' },
+      { name: '.count()', desc: 'Counting occurrences', color: 'blue', badge: 'badge-blue' },
+      { name: 'f-strings', desc: 'Formatting output', color: 'purple', badge: 'badge-purple' },
+      { name: 'Nested loops', desc: 'Loops inside loops', color: 'coral', badge: 'badge-coral' },
+      { name: '".join()', desc: 'Joining list into string', color: 'blue', badge: 'badge-blue' },
+    ],
+    lessons: [
+      {
+        title: 'Accessing values in a list of dictionaries',
+        badge: 'badge-teal', badgeText: 'Data access',
+        text: 'A list of dicts is the most common way to store tabular data in Python. Each dict is a "row" and each key is a "column". You access a field with square-bracket notation twice: first to pick the row (index), then to pick the key (string).',
+        code: `<span class="cm"># A mini version of facup_data</span>
+results = [
+  {<span class="str">'Year'</span>: <span class="str">'1901'</span>, <span class="str">'Winner'</span>: <span class="str">'Tottenham Hotspur'</span>},
+  {<span class="str">'Year'</span>: <span class="str">'1921'</span>, <span class="str">'Winner'</span>: <span class="str">'Tottenham Hotspur'</span>},
+  {<span class="str">'Year'</span>: <span class="str">'1961'</span>, <span class="str">'Winner'</span>: <span class="str">'Tottenham Hotspur'</span>},
+]
+
+<span class="cm"># Get the Winner from the first row</span>
+<span class="fn">print</span>(results[<span class="num">0</span>][<span class="str">'Winner'</span>])  <span class="cm"># Tottenham Hotspur</span>
+
+<span class="cm"># Loop over all rows and print each winner</span>
+<span class="kw">for</span> row <span class="kw">in</span> results:
+    <span class="fn">print</span>(row[<span class="str">'Winner'</span>], row[<span class="str">'Year'</span>])`
+      },
+      {
+        title: 'Building a list with .append()',
+        badge: 'badge-teal', badgeText: 'List building',
+        text: 'Start with an empty list and use .append() inside a loop to build it up. This is how the challenge solution collects all winners before working with them.',
+        code: `winners = <span class="fn">list</span>()    <span class="cm"># or winners = []</span>
+
+<span class="kw">for</span> team <span class="kw">in</span> facup_data:
+    winners.<span class="fn">append</span>(team[<span class="str">'Winner'</span>])
+
+<span class="cm"># winners is now a flat list of all winning teams</span>
+<span class="cm"># (with duplicates — a team appears once per win)</span>
+<span class="fn">print</span>(<span class="fn">len</span>(winners))    <span class="cm"># 152</span>`
+      },
+      {
+        title: 'Using set() to remove duplicates',
+        badge: 'badge-amber', badgeText: 'Sets',
+        text: 'set() strips duplicates. Wrapping your winners list in set() gives you each team exactly once, which is perfect for looping and counting.',
+        code: `<span class="cm"># winners has repeats; set() makes it unique</span>
+<span class="kw">for</span> team <span class="kw">in</span> <span class="fn">set</span>(winners):
+    times_won = winners.<span class="fn">count</span>(team)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="str">"{team} won {times_won} times"</span>)
+
+<span class="cm"># .count() counts how many times a value</span>
+<span class="cm"># appears in a list — very handy here!</span>`
+      },
+      {
+        title: 'Nested loops + .join() for formatted output',
+        badge: 'badge-coral', badgeText: 'Nested loops',
+        text: 'A nested loop lets you search the original dataset to collect the seasons a team won. Then .join() turns that list into a tidy comma-separated string for printing.',
+        code: `years_won = []
+
+<span class="kw">for</span> row <span class="kw">in</span> facup_data:
+    <span class="kw">if</span> row[<span class="str">'Winner'</span>] == team:
+        years_won.<span class="fn">append</span>(row[<span class="str">'Season'</span>])
+
+<span class="cm"># .join() concatenates a list into one string</span>
+seasons_str = <span class="str">', '</span>.<span class="fn">join</span>(years_won)
+<span class="fn">print</span>(<span class="fn">f</span><span class="str">"{team}: {seasons_str}"</span>)
+<span class="cm"># Arsenal: 1929-30, 1935-36, 1949-50 ...</span>`
+      },
+    ]
+  },
+  {
+    id: 'c2',
+    label: 'Challenge II',
+    tag: 'Chuck Norris API',
+    title: 'HTTP requests and working with APIs',
+    desc: 'Challenge II fetches live JSON data from a web API. You must import the right library, make a GET request, parse the response, and do something interesting with the result.',
+    skills: [
+      { name: 'import', desc: 'Loading external modules', color: 'teal', badge: 'badge-teal' },
+      { name: 'requests.get()', desc: 'Making HTTP requests', color: 'blue', badge: 'badge-blue' },
+      { name: '.json()', desc: 'Parsing JSON responses', color: 'teal', badge: 'badge-teal' },
+      { name: 'pprint', desc: 'Pretty-printing dicts', color: 'amber', badge: 'badge-amber' },
+      { name: 'Dict access', desc: 'Reading response fields', color: 'purple', badge: 'badge-purple' },
+      { name: 'Refactoring', desc: 'Improving existing code', color: 'coral', badge: 'badge-coral' },
+    ],
+    lessons: [
+      {
+        title: 'Importing modules',
+        badge: 'badge-teal', badgeText: 'Modules',
+        text: 'Python\'s built-in tools live in the standard library; third-party tools (like requests) must be imported before use. Always put imports at the very top of your script.',
+        code: `<span class="kw">import</span> requests     <span class="cm"># HTTP library (install with pip)</span>
+<span class="kw">import</span> pprint      <span class="cm"># Pretty-printer for nested objects</span>
+<span class="kw">import</span> json        <span class="cm"># Part of standard library, no install needed</span>
+
+<span class="cm"># You can also import just one thing from a module:</span>
+<span class="kw">from</span> pprint <span class="kw">import</span> pp`
+      },
+      {
+        title: 'Making a GET request and parsing JSON',
+        badge: 'badge-blue', badgeText: 'HTTP',
+        text: 'requests.get() sends an HTTP request and returns a Response object. Calling .json() on it parses the response body and gives you a plain Python dictionary.',
+        code: `url = <span class="str">"https://api.chucknorris.io/jokes/random"</span>
+
+response = requests.<span class="fn">get</span>(url)
+
+<span class="cm"># response is a Response object — convert to dict:</span>
+joke_dict = response.<span class="fn">json</span>()
+
+<span class="cm"># Now it's a regular Python dictionary</span>
+<span class="fn">print</span>(<span class="fn">type</span>(joke_dict))    <span class="cm"># &lt;class 'dict'&gt;</span>
+<span class="fn">print</span>(joke_dict[<span class="str">'value'</span>]) <span class="cm"># the joke text</span>`
+      },
+      {
+        title: 'Exploring the response with pprint',
+        badge: 'badge-amber', badgeText: 'Debugging',
+        text: 'pprint.pp() displays nested structures like dicts and lists in a readable, indented format. Use it while exploring an unfamiliar API response.',
+        code: `<span class="kw">import</span> pprint
+
+pprint.<span class="fn">pp</span>(joke_dict, indent=<span class="num">4</span>)
+
+<span class="cm"># Prints something like:</span>
+<span class="cm"># {   'categories': [],</span>
+<span class="cm">#     'created_at': '2020-01-05 13:42:22.089095',</span>
+<span class="cm">#     'id': 'abc123',</span>
+<span class="cm">#     'url': 'https://...',</span>
+<span class="cm">#     'value': 'Chuck Norris counted to infinity. Twice.'}</span>`
+      },
+      {
+        title: 'Refactoring: wrapping logic in a function',
+        badge: 'badge-coral', badgeText: 'Refactoring',
+        text: 'The original script does everything inline. A refactored version puts the fetch logic inside a named function, making it reusable and readable.',
+        code: `<span class="kw">import</span> requests
+
+<span class="kw">def</span> <span class="fn">get_random_joke</span>():
+    <span class="str">"""Fetches and returns a random Chuck Norris joke."""</span>
+    url = <span class="str">"https://api.chucknorris.io/jokes/random"</span>
+    response = requests.<span class="fn">get</span>(url)
+    data = response.<span class="fn">json</span>()
+    <span class="kw">return</span> data[<span class="str">'value'</span>]
+
+<span class="cm"># Clean, readable call site:</span>
+joke = <span class="fn">get_random_joke</span>()
+<span class="fn">print</span>(<span class="fn">f</span><span class="str">"Here's a joke: {joke}"</span>)`
+      },
+    ]
+  },
+  {
+    id: 'c3',
+    label: 'Challenge III',
+    tag: 'To-do List Builder',
+    title: 'User input, validation, and custom functions',
+    desc: 'Challenge III asks you to build create_todo_list() — a function that collects tasks from the user, prevents duplicates and empty entries, and stops when the user types a stopword.',
+    skills: [
+      { name: 'def / return', desc: 'Writing custom functions', color: 'teal', badge: 'badge-teal' },
+      { name: 'input()', desc: 'Reading user input', color: 'blue', badge: 'badge-blue' },
+      { name: 'while loops', desc: 'Looping until a condition', color: 'amber', badge: 'badge-amber' },
+      { name: 'Parameters', desc: 'Passing values to functions', color: 'purple', badge: 'badge-purple' },
+      { name: 'Validation', desc: 'Checking and rejecting bad input', color: 'coral', badge: 'badge-coral' },
+      { name: 'in / not in', desc: 'Membership testing', color: 'teal', badge: 'badge-teal' },
+      { name: 'enumerate()', desc: 'Looping with an index', color: 'blue', badge: 'badge-blue' },
+    ],
+    lessons: [
+      {
+        title: 'Defining a function with a parameter',
+        badge: 'badge-teal', badgeText: 'Functions',
+        text: 'A function groups logic under a name. Parameters let the caller customise behaviour — here, stopword lets the caller decide what word ends the loop. The function must return the finished list.',
+        code: `<span class="kw">def</span> <span class="fn">create_todo_list</span>(stopword=<span class="str">"stop"</span>):
+    <span class="str">"""Collect tasks from the user until stopword is entered."""</span>
+    todo_list = []
+
+    <span class="cm"># ... fill the list here ...</span>
+
+    <span class="kw">return</span> todo_list
+
+<span class="cm"># Caller can override the default stopword:</span>
+tasks = <span class="fn">create_todo_list</span>(stopword=<span class="str">"done"</span>)`
+      },
+      {
+        title: 'Collecting input with a while loop',
+        badge: 'badge-amber', badgeText: 'While loops',
+        text: 'while True: loops forever until you break out. input() pauses execution and returns whatever the user typed as a string. Check for the stopword first, then decide what to do with the entry.',
+        code: `<span class="kw">while</span> <span class="kw">True</span>:
+    entry = <span class="fn">input</span>(<span class="str">"Enter a task (or 'stop' to finish): "</span>)
+
+    <span class="cm"># Exit the loop when the stopword is typed</span>
+    <span class="kw">if</span> entry == stopword:
+        <span class="kw">break</span>
+
+    <span class="cm"># Process the entry if we reach here</span>
+    todo_list.<span class="fn">append</span>(entry)`
+      },
+      {
+        title: 'Input validation: rejecting empty and duplicate entries',
+        badge: 'badge-coral', badgeText: 'Validation',
+        text: 'Two checks keep the list clean: strip() removes accidental whitespace, so an empty entry is just "", which is falsy. The in operator tests membership so duplicates are rejected before they are added.',
+        code: `<span class="kw">while</span> <span class="kw">True</span>:
+    entry = <span class="fn">input</span>(<span class="str">"Task: "</span>).<span class="fn">strip</span>()
+
+    <span class="kw">if</span> entry == stopword:
+        <span class="kw">break</span>
+
+    <span class="cm"># Reject empty entries</span>
+    <span class="kw">if not</span> entry:
+        <span class="fn">print</span>(<span class="str">"Please enter something."</span>)
+        <span class="kw">continue</span>
+
+    <span class="cm"># Reject duplicates using 'in'</span>
+    <span class="kw">if</span> entry <span class="kw">in</span> todo_list:
+        <span class="fn">print</span>(<span class="str">"Already on the list!"</span>)
+        <span class="kw">continue</span>
+
+    todo_list.<span class="fn">append</span>(entry)`
+      },
+      {
+        title: 'Displaying results with enumerate()',
+        badge: 'badge-blue', badgeText: 'enumerate()',
+        text: 'enumerate() is the Pythonic way to loop over a list when you also need the position. It returns (index, value) pairs. Add 1 to the index so the display starts at 1, not 0.',
+        code: `<span class="kw">def</span> <span class="fn">display_todo_list</span>(todo_list):
+    output = <span class="str">"Your to-do list:\n\n"</span>
+
+    <span class="kw">for</span> i, task <span class="kw">in</span> <span class="fn">enumerate</span>(todo_list):
+        output += <span class="fn">f</span><span class="str">"{i + 1}. {task}\n"</span>
+        <span class="cm"># i+1 makes numbering start at 1</span>
+
+    <span class="kw">return</span> output
+
+<span class="fn">print</span>(<span class="fn">display_todo_list</span>([<span class="str">"Buy milk"</span>, <span class="str">"Write code"</span>]))
+<span class="cm"># 1. Buy milk</span>
+<span class="cm"># 2. Write code</span>`
+      },
+      {
+        title: 'Putting it all together',
+        badge: 'badge-purple', badgeText: 'Complete solution',
+        text: 'Here is a clean, complete implementation of create_todo_list() that satisfies all the requirements in the challenge.',
+        code: `<span class="kw">def</span> <span class="fn">create_todo_list</span>(stopword=<span class="str">"stop"</span>):
+    <span class="str">"""
+    Collect unique, non-empty tasks from the user.
+    Returns a list of strings.
+    """</span>
+    todo_list = []
+
+    <span class="fn">print</span>(<span class="fn">f</span><span class="str">"Enter tasks one at a time. Type '{stopword}' when done."</span>)
+
+    <span class="kw">while</span> <span class="kw">True</span>:
+        entry = <span class="fn">input</span>(<span class="str">"  > "</span>).<span class="fn">strip</span>()
+
+        <span class="kw">if</span> entry == stopword:
+            <span class="kw">break</span>
+        <span class="kw">elif not</span> entry:
+            <span class="fn">print</span>(<span class="str">"  Empty entry — skipping."</span>)
+        <span class="kw">elif</span> entry <span class="kw">in</span> todo_list:
+            <span class="fn">print</span>(<span class="str">"  Already on the list — skipping."</span>)
+        <span class="kw">else</span>:
+            todo_list.<span class="fn">append</span>(entry)
+            <span class="fn">print</span>(<span class="fn">f</span><span class="str">"  Added: {entry}"</span>)
+
+    <span class="kw">return</span> todo_list`
+      },
+    ]
+  }
+];
+
+let active = 'overview';
+let openLessons = {};
+
+function render() {
+  const ch = challenges.find(c => c.id === active);
+  
+  document.getElementById('nav').innerHTML = challenges.map(c =>
+    `<button class="nav-btn ${c.id === active ? 'active' : ''}" onclick="setActive('${c.id}')">${c.label}</button>`
+  ).join('');
+
+  if (ch.content === 'overview') {
+    document.getElementById('content').innerHTML = `
+      <div class="section-header">
+        <span class="challenge-tag">${ch.tag}</span>
+        <div class="section-title">${ch.title}</div>
+        <div class="section-desc">${ch.desc}</div>
+      </div>
+      ${challenges.filter(c => c.id !== 'overview').map(c => `
+        <div class="overview-card">
+          <div class="ov-title">${c.label} — ${c.title}</div>
+          <div class="ov-desc">${c.desc}</div>
+          <div class="ov-skills">${c.skills.map(s => `<span class="ov-tag">${s.name}</span>`).join('')}</div>
+        </div>
+      `).join('')}
+    `;
+    return;
+  }
+
+  const dots = ch.lessons.map((_, i) => `<div class="prog-dot ${openLessons[`${ch.id}-${i}`] ? 'done' : ''}"></div>`).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="section-header">
+      <span class="challenge-tag">${ch.tag}</span>
+      <div class="section-title">${ch.title}</div>
+      <div class="section-desc">${ch.desc}</div>
+    </div>
+    <div style="margin-bottom:8px;font-size:12px;color:var(--color-text-tertiary)">Skills needed</div>
+    <div class="skills-grid">
+      ${ch.skills.map(s => `<div class="skill-chip ${s.color}"><div class="skill-name">${s.name}</div><div class="skill-desc">${s.desc}</div></div>`).join('')}
+    </div>
+    <div style="margin-bottom:8px;font-size:12px;color:var(--color-text-tertiary);margin-top:1rem">Lessons — click to expand</div>
+    <div class="progress-row">${dots}</div>
+    ${ch.lessons.map((l, i) => {
+      const key = `${ch.id}-${i}`;
+      const isOpen = openLessons[key];
+      return `
+        <div class="lesson">
+          <div class="lesson-header" onclick="toggleLesson('${key}')">
+            <div class="lesson-title">
+              <span class="lesson-badge ${l.badge}">${l.badgeText}</span>
+              ${l.title}
+            </div>
+            <span class="chevron ${isOpen ? 'open' : ''}">▼</span>
+          </div>
+          ${isOpen ? `
+          <div class="lesson-body">
+            <div class="lesson-text">${l.text}</div>
+            <div class="code-label">example</div>
+            <pre>${l.code}</pre>
+          </div>` : ''}
+        </div>
+      `;
+    }).join('')}
+  `;
+}
+
+window.setActive = function(id) { active = id; render(); }
+window.toggleLesson = function(key) {
+  openLessons[key] = !openLessons[key];
+  render();
+}
+
+render();
+</script>
