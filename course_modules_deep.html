@@ -21,8 +21,6 @@
 .conn-item{font-size:12px;color:var(--color-text-secondary);line-height:1.55;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
 .conn-item:last-child{border-bottom:none}
 .conn-item strong{font-weight:500;color:var(--color-text-primary)}
-.ask-btn{margin-top:10px;font-size:12px;background:none;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:5px 10px;cursor:pointer;color:var(--color-text-secondary);width:100%;text-align:left}
-.ask-btn:hover{background:var(--color-background-secondary)}
 </style>
 
 <h2 class="sr-only">Interactive deep-dive module summaries with connections and key questions</h2>
@@ -42,8 +40,7 @@ const modules = [
       {to:"Privacy", why:"Every HTTP request is logged. The metadata of who you contact, when, and how often is collected at the protocol level — before any encryption."},
       {to:"CIA Triad", why:"HTTPS is the application of Confidentiality (encryption) and Integrity (TLS certificates) at the protocol layer."}
     ],
-    lab:"Python Practice 2 · Markup & Markdown assignment",
-    prompt:"Explain how HTTP and the OSI model connect to each other in plain terms"
+    lab:"Python Practice 2 · Markup & Markdown assignment"
   },
   {
     theme:"Networks & Society", themeColor:"#E1F5EE", themeText:"#085041",
@@ -53,12 +50,11 @@ const modules = [
     keyTerms:["Dunbar's Number","Centrality","Graph theory","Hubs & bridges","Six degrees","Degrees of connection","Network topology","Viral spread"],
     questions:["What is Dunbar's Number and what does it predict about online friendships?","What is centrality and why does it matter in a network?","Why is Samuel L. Jackson the 'center' of the Hollywood universe?","How does the structure of a network affect how fast something spreads through it?"],
     connections:[
-      {to:"Internet Protocols", why:"The Web is a hyperlinked network — its topology (hubs, long tails) was studied by Barabási and others using exactly the same graph tools."},
+      {to:"Internet Protocols", why:"The Web is a hyperlinked network — its topology (hubs, long tails) was studied using exactly the same graph tools."},
       {to:"Weakest Link", why:"Social engineers exploit network structure — targeting bridge nodes (people with access to many systems) for maximum leverage."},
       {to:"Privacy", why:"Your social graph — who you know and talk to — is valuable metadata even if no message content is ever read."}
     ],
-    lab:"Python Practice 3",
-    prompt:"Explain how Dunbar's Number relates to modern social media platforms and what it predicts"
+    lab:"Python Practice 3"
   },
   {
     theme:"Cybersecurity", themeColor:"#FAECE7", themeText:"#993C1D",
@@ -72,8 +68,7 @@ const modules = [
       {to:"Weakest Link", why:"Social engineering attacks most often target Confidentiality — tricking users into revealing credentials bypasses all technical controls."},
       {to:"Privacy", why:"Confidentiality in the CIA Triad and privacy rights share the same core value: controlling who sees your information."}
     ],
-    lab:"Python Practice 4",
-    prompt:"Give me a concrete example of how the CIA Triad applies to protecting a school's student records system"
+    lab:"Python Practice 4"
   },
   {
     theme:"Cybersecurity", themeColor:"#FAECE7", themeText:"#993C1D",
@@ -87,8 +82,7 @@ const modules = [
       {to:"Network Science", why:"Attackers map organizational networks to find high-betweenness targets (admins, executives) who have access to the most systems."},
       {to:"Privacy", why:"Dark patterns are frequently used to extract consent for data collection that users wouldn't knowingly grant."}
     ],
-    lab:"Python Practice 5",
-    prompt:"Explain the connection between social engineering attacks and dark patterns in UI design — what do they have in common?"
+    lab:"Python Practice 5"
   },
   {
     theme:"Privacy", themeColor:"#EEEDFE", themeText:"#3C3489",
@@ -102,22 +96,7 @@ const modules = [
       {to:"CIA Triad", why:"Mass surveillance by governments directly conflicts with the Confidentiality principle when applied to citizens rather than data systems."},
       {to:"Weakest Link", why:"Dark patterns in consent flows and cookie banners are a commercial form of the same surveillance, harvesting data users don't knowingly share."}
     ],
-    lab:"Privacy in Public field experiment (train station visit)",
-    prompt:"Explain why metadata can be more revealing than message content, with a concrete example"
-  },
-  {
-    theme:"Lecture Slides", themeColor:"#F1EFE8", themeText:"#444441",
-    title:"Lecture: CIA Triad (PDF — unreadable)",
-    lead:"The uploaded PDF appears corrupted and could not be parsed. The module summary above is drawn from the course description text instead.",
-    deep:"Expected slide content would typically expand on: the three CIA properties with concrete attack/defense examples per property, a risk matrix (likelihood × impact), the NIST threat taxonomy (adversarial, accidental, structural, environmental), and how organizations prioritize controls under resource constraints. Re-upload a readable PDF to pull in slide-specific detail.",
-    keyTerms:["CIA Triad (lecture)","Risk matrix","NIST threat taxonomy","Security controls","Defense in depth"],
-    questions:["What attack scenario would violate Integrity but not Confidentiality?","How does the NIST risk matrix weigh likelihood against impact?","What is 'defense in depth' and why is a single control never enough?"],
-    connections:[
-      {to:"CIA Triad module", why:"Direct lecture companion — would provide worked examples and visual frameworks for the reading material."},
-      {to:"Weakest Link", why:"Lecture likely covers the human layer of the CIA Triad threat model."}
-    ],
-    lab:"Upload a working PDF to expand this summary",
-    prompt:"Explain the CIA Triad with one concrete attack example for each of the three properties"
+    lab:"Privacy in Public field experiment (train station visit)"
   }
 ];
 
@@ -126,20 +105,16 @@ const grid = document.getElementById('grid');
 modules.forEach((m,i) => {
   const card = document.createElement('div');
   card.className = 'card';
-
-  const body_id = 'body'+i;
-  const arrow_id = 'arrow'+i;
-
   card.innerHTML = `
     <div class="card-header" onclick="toggle(${i})">
       <span class="tag" style="background:${m.themeColor};color:${m.themeText}">${m.theme}</span>
       <h3>${m.title}</h3>
       <p class="lead">${m.lead}</p>
       <div class="toggle-row">
-        <button class="toggle-btn" id="btn${i}">Dig deeper <span class="arrow" id="${arrow_id}">▼</span></button>
+        <button class="toggle-btn" id="btn${i}">Dig deeper <span class="arrow" id="arrow${i}">▼</span></button>
       </div>
     </div>
-    <div class="card-body" id="${body_id}">
+    <div class="card-body" id="body${i}">
       <p>${m.deep}</p>
       <div class="section-label">Key terms</div>
       <div class="pill-row">${m.keyTerms.map(t=>`<span class="pill">${t}</span>`).join('')}</div>
@@ -150,7 +125,6 @@ modules.forEach((m,i) => {
       <div class="divider"></div>
       <div class="section-label">Lab / assignment</div>
       <p style="font-size:12px;">${m.lab}</p>
-      <button class="ask-btn" onclick="sendPrompt('${m.prompt.replace(/'/g,"\\'")}') ">Ask Claude: "${m.prompt}" ↗</button>
     </div>
   `;
   grid.appendChild(card);
@@ -161,8 +135,8 @@ function toggle(i){
   const arrow = document.getElementById('arrow'+i);
   const btn = document.getElementById('btn'+i);
   const isOpen = body.classList.contains('open');
-  body.classList.toggle('open', !isOpen);
-  arrow.classList.toggle('open', !isOpen);
+  body.classList.toggle('open',!isOpen);
+  arrow.classList.toggle('open',!isOpen);
   btn.childNodes[0].textContent = isOpen ? 'Dig deeper ' : 'Collapse ';
 }
 </script>
