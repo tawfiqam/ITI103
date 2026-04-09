@@ -11,19 +11,30 @@
 .toggle-btn{font-size:12px;color:var(--color-text-tertiary);background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px}
 .arrow{display:inline-block;transition:transform 0.2s;font-size:10px}
 .arrow.open{transform:rotate(180deg)}
-.card-body{padding:0 1.25rem;max-height:0;overflow:hidden;transition:max-height 0.35s ease,padding 0.2s}
-.card-body.open{max-height:900px;padding:0 1.25rem 1.1rem}
+.card-body{padding:0 1.25rem;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.2s}
+.card-body.open{max-height:1100px;padding:0 1.25rem 1.1rem}
 .section-label{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.07em;margin:12px 0 5px}
 .card-body p{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
 .pill-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
-.pill{font-size:11px;padding:2px 8px;border-radius:20px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
+a.pill{font-size:11px;padding:2px 8px;border-radius:20px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);text-decoration:none;display:inline-block;transition:background 0.15s}
+a.pill:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+a.pill.from-reading{border-color:var(--color-border-info);color:var(--color-text-info)}
+a.pill.from-reading:hover{background:var(--color-background-info)}
 .divider{height:0.5px;background:var(--color-border-tertiary);margin:10px 0}
 .conn-item{font-size:12px;color:var(--color-text-secondary);line-height:1.55;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
 .conn-item:last-child{border-bottom:none}
 .conn-item strong{font-weight:500;color:var(--color-text-primary)}
+.legend{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px;padding:0 0 8px}
+.legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
 </style>
 
-<h2 class="sr-only">Interactive deep-dive module summaries with connections and key questions</h2>
+<h2 class="sr-only">Interactive deep-dive module summaries with linked keyword definitions</h2>
+
+<div class="legend">
+  <span class="legend-dot" style="background:var(--color-text-info)"></span> from course readings &nbsp;
+  <span class="legend-dot" style="border:0.5px solid var(--color-border-secondary);background:none"></span> external reference
+</div>
+
 <div class="grid" id="grid"></div>
 
 <script>
@@ -33,7 +44,16 @@ const modules = [
     title:"Internet Protocols & the Web (CERN)",
     lead:"Tim Berners-Lee invented the Web at CERN to solve information loss in large research networks — accidentally creating global communication infrastructure.",
     deep:"The original 1989 proposal described a distributed hypertext system where nodes (documents) are connected by links, allowing non-linear navigation of information. The OSI model's 7-layer abstraction — from physical cables to application-layer HTTP — explains how every web request travels. TCP/IP is the practical implementation: IP handles addressing, TCP guarantees delivery. A URL encodes protocol, host, path, and query — every click is a structured command.",
-    keyTerms:["OSI 7 layers","TCP/IP stack","HTTP/HTTPS","URL structure","Hypertext","Distributed systems","Node & link","CERN / Berners-Lee"],
+    keyTerms:[
+      {label:"OSI 7 layers", url:"https://www.ibm.com/think/topics/osi-model", reading:true},
+      {label:"TCP/IP stack", url:"https://en.wikipedia.org/wiki/Internet_protocol_suite", reading:false},
+      {label:"HTTP/HTTPS", url:"https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview", reading:false},
+      {label:"URL structure", url:"https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL", reading:false},
+      {label:"Hypertext", url:"https://en.wikipedia.org/wiki/Hypertext", reading:false},
+      {label:"Distributed systems", url:"https://en.wikipedia.org/wiki/Distributed_computing", reading:false},
+      {label:"Node & link", url:"https://en.wikipedia.org/wiki/Graph_theory", reading:false},
+      {label:"CERN proposal (1989)", url:"https://www.w3.org/History/1989/proposal.html", reading:true}
+    ],
     questions:["What problem was the Web originally designed to solve at CERN?","How do the OSI and TCP/IP models differ in purpose?","What information is encoded in a URL?","Why is hypertext fundamentally different from linear text?"],
     connections:[
       {to:"Network Science", why:"Both deal with nodes and links — the Web is itself a massive network whose structure is studied using the same centrality metrics."},
@@ -47,7 +67,16 @@ const modules = [
     title:"Links, Networks & Six Degrees",
     lead:"Social media may be reshaping Dunbar's Number — the ~150-relationship ceiling proposed by anthropologists — while Network Science reveals hidden structure in human connection.",
     deep:"Dunbar's Number (≈150) represents the cognitive limit for maintaining stable social relationships, rooted in primate brain size studies. Network Science uses graph theory to measure how information and influence travel: degree centrality counts connections, betweenness centrality finds 'bridge' nodes. The Hollywood universe experiment shows that a few highly-connected actors (hubs) collapse path lengths dramatically — the same topology underlies disease spread, viral content, and supply chain fragility.",
-    keyTerms:["Dunbar's Number","Centrality","Graph theory","Hubs & bridges","Six degrees","Degrees of connection","Network topology","Viral spread"],
+    keyTerms:[
+      {label:"Dunbar's Number", url:"https://en.wikipedia.org/wiki/Dunbar%27s_number", reading:false},
+      {label:"Centrality", url:"https://en.wikipedia.org/wiki/Centrality", reading:false},
+      {label:"Graph theory", url:"https://en.wikipedia.org/wiki/Graph_theory", reading:false},
+      {label:"Hubs & bridges", url:"https://en.wikipedia.org/wiki/Network_science", reading:false},
+      {label:"Six degrees", url:"https://en.wikipedia.org/wiki/Six_degrees_of_separation", reading:false},
+      {label:"LinkedIn degrees of connection", url:"https://www.linkedin.com/help/linkedin/answer/a545648", reading:true},
+      {label:"Network topology", url:"https://en.wikipedia.org/wiki/Network_topology", reading:false},
+      {label:"Oracle of Bacon", url:"https://oracleofbacon.org", reading:true}
+    ],
     questions:["What is Dunbar's Number and what does it predict about online friendships?","What is centrality and why does it matter in a network?","Why is Samuel L. Jackson the 'center' of the Hollywood universe?","How does the structure of a network affect how fast something spreads through it?"],
     connections:[
       {to:"Internet Protocols", why:"The Web is a hyperlinked network — its topology (hubs, long tails) was studied using exactly the same graph tools."},
@@ -60,8 +89,17 @@ const modules = [
     theme:"Cybersecurity", themeColor:"#FAECE7", themeText:"#993C1D",
     title:"CIA Triad — Foundations of Security",
     lead:"Confidentiality, Integrity, and Availability form the three-part test applied to every security decision, from password policies to disaster recovery plans.",
-    deep:"Confidentiality prevents unauthorized disclosure — encryption, access controls, and need-to-know policies all serve this principle. Integrity ensures data isn't altered without authorization — checksums, digital signatures, and audit logs enforce it. Availability ensures systems work when needed — redundancy, backups, and DDoS mitigation protect it. NIST SP 800-12 adds risk management: security controls must be commensurate with risk, and societal/cultural factors shape what is acceptable. The adversarial threat landscape includes insiders, malicious hackers, and nation-states.",
-    keyTerms:["Confidentiality","Integrity","Availability","NIST SP 800-12","Risk management","Threat modeling","Access control","Adversarial threats"],
+    deep:"Confidentiality prevents unauthorized disclosure — encryption, access controls, and need-to-know policies all serve this principle. Integrity ensures data isn't altered without authorization — checksums, digital signatures, and audit logs enforce it. Availability ensures systems work when needed — redundancy, backups, and DDoS mitigation protect it. NIST SP 800-12 adds risk management: security controls must be commensurate with risk, and societal/cultural factors shape what is acceptable.",
+    keyTerms:[
+      {label:"Confidentiality", url:"https://csrc.nist.gov/glossary/term/confidentiality", reading:false},
+      {label:"Integrity", url:"https://csrc.nist.gov/glossary/term/integrity", reading:false},
+      {label:"Availability", url:"https://csrc.nist.gov/glossary/term/availability", reading:false},
+      {label:"NIST SP 800-12", url:"https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-12r1.pdf", reading:true},
+      {label:"Risk management", url:"https://csrc.nist.gov/glossary/term/risk_management", reading:false},
+      {label:"Threat modeling", url:"https://owasp.org/www-community/Threat_Modeling", reading:false},
+      {label:"Access control", url:"https://csrc.nist.gov/glossary/term/access_control", reading:false},
+      {label:"Adversarial threats", url:"https://csrc.nist.gov/glossary/term/advanced_persistent_threat", reading:false}
+    ],
     questions:["How does the CIA Triad apply to a real-world scenario like a hospital database?","What does 'commensurate with risk' mean in security policy?","What distinguishes an insider threat from an external adversary?","How do you balance Availability against Confidentiality?"],
     connections:[
       {to:"Internet Protocols", why:"HTTPS directly implements Confidentiality (encryption) and Integrity (certificates). Availability is why CDNs and load balancers exist."},
@@ -74,8 +112,17 @@ const modules = [
     theme:"Cybersecurity", themeColor:"#FAECE7", themeText:"#993C1D",
     title:"The Weakest Link — Social Engineering",
     lead:"No firewall protects against a convincing phone call. Humans are exploitable at scale, and the same manipulation principles appear in UI dark patterns as in phishing attacks.",
-    deep:"Social engineering pre-dates computers — con artists, spies, and fraudsters have always exploited trust, authority, urgency, and reciprocity. Phishing, pretexting, vishing, and baiting all follow the same pattern: establish credibility, create urgency, request action. Penetration testers legitimately use these techniques to expose organizational weaknesses before attackers do. Dark patterns extend the same playbook into product design: confirmshaming, roach motels, hidden unsubscribe flows, and misdirection exploit cognitive biases to extract money or data — legally.",
-    keyTerms:["Social engineering","Phishing / vishing","Pretexting","Penetration testing","Dark patterns","Confirmshaming","Nudging","Cognitive bias exploitation"],
+    deep:"Social engineering pre-dates computers — con artists, spies, and fraudsters have always exploited trust, authority, urgency, and reciprocity. Phishing, pretexting, vishing, and baiting all follow the same pattern: establish credibility, create urgency, request action. Penetration testers legitimately use these techniques to expose organizational weaknesses before attackers do. Dark patterns extend the same playbook into product design: confirmshaming, roach motels, and misdirection exploit cognitive biases to extract money or data.",
+    keyTerms:[
+      {label:"Social engineering guide", url:"https://www.stationx.net/social-engineering-penetration-testing/", reading:true},
+      {label:"Phishing / vishing", url:"https://en.wikipedia.org/wiki/Phishing", reading:false},
+      {label:"Pretexting", url:"https://en.wikipedia.org/wiki/Pretexting", reading:false},
+      {label:"Penetration testing", url:"https://en.wikipedia.org/wiki/Penetration_test", reading:false},
+      {label:"Dark patterns", url:"https://www.deceptive.design/", reading:true},
+      {label:"Confirmshaming", url:"https://www.deceptive.design/types/confirmshaming", reading:true},
+      {label:"Nudge theory", url:"https://en.wikipedia.org/wiki/Nudge_theory", reading:false},
+      {label:"Cognitive bias", url:"https://en.wikipedia.org/wiki/Cognitive_bias", reading:false}
+    ],
     questions:["What makes social engineering attacks so effective against technical defenses?","What is the difference between 'nudging' and manipulation in UX design?","Why is confirmshaming considered an unethical dark pattern?","How do penetration testers use social engineering ethically?"],
     connections:[
       {to:"CIA Triad", why:"Social engineering primarily attacks Confidentiality — credentials obtained by deception bypass encryption and access controls entirely."},
@@ -88,8 +135,17 @@ const modules = [
     theme:"Privacy", themeColor:"#EEEDFE", themeText:"#3C3489",
     title:"Privacy Rights, Surveillance & Digital Identity",
     lead:"You leave a unique digital fingerprint everywhere you go online — and governments and corporations are collecting it, whether or not you've done anything wrong.",
-    deep:"The NSA's Utah Data Center (operational 2014, $2B) stores vast quantities of metadata: call records, email headers, search queries, location data, financial transactions. The key insight is that metadata — who you called, when, for how long — can be more revealing than content. Your browser fingerprint (OS, fonts, screen size, plugins) is statistically unique enough to track you without cookies. 'You are not so unique' is both reassuring (you blend into a crowd) and alarming (the crowd is still tracked). Privacy in public challenges the intuition that observation without intrusion is harmless.",
-    keyTerms:["Metadata","Browser fingerprinting","NSA Utah Data Center","Mass surveillance","EFF","Digital identity","Privacy in public","amiunique.org"],
+    deep:"The NSA's Utah Data Center (operational 2014, $2B) stores vast quantities of metadata: call records, email headers, search queries, location data, financial transactions. The key insight is that metadata — who you called, when, for how long — can be more revealing than content. Your browser fingerprint (OS, fonts, screen size, plugins) is statistically unique enough to track you without cookies. Privacy in public challenges the intuition that observation without intrusion is harmless.",
+    keyTerms:[
+      {label:"Why metadata matters (EFF)", url:"https://www.eff.org/deeplinks/2013/06/why-metadata-matters", reading:true},
+      {label:"Browser fingerprinting (EFF)", url:"https://www.eff.org/issues/fingerprinting", reading:true},
+      {label:"NSA Utah Data Center (Wired)", url:"https://www.wired.com/2012/03/ff-nsadatacenter/", reading:true},
+      {label:"Mass surveillance", url:"https://en.wikipedia.org/wiki/Mass_surveillance", reading:false},
+      {label:"EFF homepage", url:"https://www.eff.org", reading:true},
+      {label:"Digital identity", url:"https://en.wikipedia.org/wiki/Digital_identity", reading:false},
+      {label:"Privacy in public", url:"https://en.wikipedia.org/wiki/Privacy_in_public", reading:false},
+      {label:"Am I Unique?", url:"https://amiunique.org", reading:true}
+    ],
     questions:["Why is metadata sometimes more revealing than the content of communications?","What makes a browser fingerprint unique, and how is it used for tracking?","Do you have a reasonable expectation of privacy in a public space? Why or why not?","What is the EFF's argument for why metadata collection matters?"],
     connections:[
       {to:"Internet Protocols", why:"Metadata is collected at the protocol layer — IP addresses, DNS queries, TCP handshakes — before any application-level encryption applies."},
@@ -105,6 +161,9 @@ const grid = document.getElementById('grid');
 modules.forEach((m,i) => {
   const card = document.createElement('div');
   card.className = 'card';
+  const pills = m.keyTerms.map(t =>
+    `<a class="pill${t.reading?' from-reading':''}" href="${t.url}" target="_blank" rel="noopener">${t.label}</a>`
+  ).join('');
   card.innerHTML = `
     <div class="card-header" onclick="toggle(${i})">
       <span class="tag" style="background:${m.themeColor};color:${m.themeText}">${m.theme}</span>
@@ -116,8 +175,8 @@ modules.forEach((m,i) => {
     </div>
     <div class="card-body" id="body${i}">
       <p>${m.deep}</p>
-      <div class="section-label">Key terms</div>
-      <div class="pill-row">${m.keyTerms.map(t=>`<span class="pill">${t}</span>`).join('')}</div>
+      <div class="section-label">Key terms & links</div>
+      <div class="pill-row">${pills}</div>
       <div class="section-label">Questions to consider</div>
       ${m.questions.map(q=>`<div class="conn-item">${q}</div>`).join('')}
       <div class="section-label">Connections to other modules</div>
