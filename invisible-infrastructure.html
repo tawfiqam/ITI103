@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>The Invisible Infrastructure | ITI 103, Rutgers SC&amp;I</title>
+<style>
+  /* Light theme is the default because it projects best in a lit classroom.
+     Rutgers scarlet is used as an accent only, never as a background wash. */
+  :root {
+    --bg: #F3F5F7;
+    --surface: #FFFFFF;
+    --ink: #121A22;
+    --text: #27323D;
+    --muted: #55606B;
+    --line: #D3D9DF;
+    --scarlet: #CC0033;
+    --blum: #0B6577;
+    --clark: #8A5200;
+    --trace: #3646A6;
+    --reuters: #B8002E;
+    --tint-blum: #E6F2F4;
+    --tint-clark: #F8F0E3;
+    --tint-trace: #ECEEF8;
+    --tint-reuters: #FBEAEE;
+    --serif: "Iowan Old Style", "Charter", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #13171C; --surface: #1C232B; --ink: #F2F5F8; --text: #D5DCE3; --muted: #A0AAB5; --line: #313B46;
+      --scarlet: #FF5C7A; --blum: #62C6D6; --clark: #E6B35A; --trace: #A3AEF2; --reuters: #FF7A92;
+      --tint-blum: #17303A; --tint-clark: #322A1B; --tint-trace: #222740; --tint-reuters: #3A1E25;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #13171C; --surface: #1C232B; --ink: #F2F5F8; --text: #D5DCE3; --muted: #A0AAB5; --line: #313B46;
+    --scarlet: #FF5C7A; --blum: #62C6D6; --clark: #E6B35A; --trace: #A3AEF2; --reuters: #FF7A92;
+    --tint-blum: #17303A; --tint-clark: #322A1B; --tint-trace: #222740; --tint-reuters: #3A1E25;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; }
+  body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: clamp(16px, 1.1vw + 6px, 20px);
+    line-height: 1.55;
+    overflow: hidden;
+  }
+
+  #app { height: 100%; display: flex; flex-direction: column; }
+
+  /* ── Top bar ── */
+  #topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 10px clamp(16px, 3vw, 40px);
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .deck-title { font-size: 0.85rem; color: var(--muted); }
+  .deck-title b { color: var(--ink); font-weight: 600; }
+  .top-right { display: flex; align-items: center; gap: 14px; }
+  .slide-counter { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  #progress {
+    position: absolute; left: 0; bottom: -1px; height: 3px;
+    background: var(--scarlet); width: 0;
+    transition: width 0.35s ease;
+  }
+  .theme-btn {
+    font: inherit; font-size: 0.8rem; color: var(--text);
+    background: transparent; border: 1px solid var(--line); border-radius: 4px;
+    padding: 4px 10px; cursor: pointer;
+  }
+  .theme-btn:hover { border-color: var(--muted); }
+
+  /* ── Slides ── */
+  #slides-viewport { flex: 1; position: relative; overflow: hidden; }
+  .slide {
+    position: absolute; inset: 0;
+    overflow-y: auto;
+    padding: clamp(20px, 4vh, 48px) clamp(18px, 5vw, 72px);
+    display: flex; justify-content: center;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+  }
+  .slide.active { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
+  .slide-inner {
+    width: 100%; max-width: 1180px;
+    margin: auto 0;
+    display: flex; flex-direction: column;
+  }
+
+  /* ── Type ── */
+  .source {
+    display: inline-block; align-self: flex-start;
+    font-size: 0.85rem; font-weight: 600;
+    padding: 4px 12px 4px 10px; margin-bottom: 14px;
+    border-left: 4px solid currentColor; border-radius: 0 4px 4px 0;
+  }
+  .source.blum { color: var(--blum); background: var(--tint-blum); }
+  .source.clark { color: var(--clark); background: var(--tint-clark); }
+  .source.trace { color: var(--trace); background: var(--tint-trace); }
+  .source.reuters { color: var(--reuters); background: var(--tint-reuters); }
+  .source.plain { color: var(--scarlet); background: transparent; padding-left: 10px; }
+
+  h1, h2, h3, h4 { font-family: var(--serif); color: var(--ink); font-weight: 700; }
+  h1.display {
+    font-size: clamp(2.4rem, 5.2vw, 4.4rem);
+    line-height: 1.06; letter-spacing: -0.01em;
+    margin-bottom: 22px;
+  }
+  h2 {
+    font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+    line-height: 1.15; margin-bottom: 18px;
+  }
+  h3 { font-size: 1.12rem; line-height: 1.3; margin-bottom: 6px; }
+  h1:focus, h2:focus { outline: none; }
+
+  .lead { font-size: 1.15rem; line-height: 1.6; max-width: 62ch; }
+  .body { font-size: 1.05rem; line-height: 1.6; max-width: 62ch; }
+  .body + .body { margin-top: 12px; }
+  strong { color: var(--ink); font-weight: 650; }
+
+  /* ── Layout ── */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 48px); align-items: start; }
+  .split.center { align-items: center; }
+  .stack-col { display: flex; flex-direction: column; gap: 12px; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--c, var(--line));
+    border-radius: 4px;
+    padding: 14px 18px;
+  }
+  .card .label { font-size: 0.82rem; font-weight: 600; color: var(--c, var(--muted)); margin-bottom: 4px; }
+  .card p { font-size: 0.98rem; line-height: 1.5; }
+  .c-blum { --c: var(--blum); }
+  .c-clark { --c: var(--clark); }
+  .c-trace { --c: var(--trace); }
+  .c-reuters { --c: var(--reuters); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ── Quote ── */
+  blockquote {
+    margin: 20px 0 0; padding: 4px 0 4px 20px;
+    border-left: 3px solid var(--q, var(--scarlet));
+  }
+  blockquote p {
+    font-family: var(--serif); font-style: italic;
+    font-size: 1.25rem; line-height: 1.5; color: var(--ink);
+  }
+  blockquote footer { margin-top: 8px; font-size: 0.88rem; color: var(--muted); }
+
+  /* ── Cover ── */
+  .sources-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 28px; margin-top: 30px; max-width: 760px; }
+  .sources-list li { padding-left: 14px; border-left: 4px solid var(--c); font-size: 0.98rem; }
+  .sources-list li span { display: block; font-size: 0.85rem; color: var(--muted); }
+  .hint { margin-top: 30px; font-size: 0.88rem; color: var(--muted); }
+  kbd {
+    font-family: var(--mono); font-size: 0.8rem;
+    border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 3px;
+    padding: 0 5px; background: var(--surface);
+  }
+
+  /* ── Clark's ranked goals ── */
+  .goals { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .goals li {
+    display: grid; grid-template-columns: 5.2rem 1fr; gap: 16px; align-items: baseline;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+    padding: 12px 18px;
+  }
+  .goals .rank { font-family: var(--serif); font-weight: 700; color: var(--clark); font-size: 1rem; }
+  .goals li.last { border-style: dashed; }
+  .goals p { font-size: 1rem; line-height: 1.5; }
+
+  /* ── Protocol stack ── */
+  .layers { list-style: none; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
+  .layers li {
+    display: grid; grid-template-columns: 2.2rem 1fr; gap: 12px;
+    padding: 8px 14px;
+    border-top: 1px solid var(--line);
+  }
+  .layers li:first-child { border-top: 0; }
+  .layers li.focus { background: var(--tint-reuters); box-shadow: inset 4px 0 0 var(--scarlet); }
+  .layers .num { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; color: var(--muted); line-height: 1.1; }
+  .layers .name { font-weight: 650; color: var(--ink); font-size: 1rem; }
+  .layers .protos { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); margin: 1px 0 3px; }
+  .layers .desc { font-size: 0.88rem; line-height: 1.45; }
+
+  /* ── Traceroute ── */
+  .trace-box { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; }
+  .trace-box h3 { font-family: var(--sans); font-size: 0.9rem; font-weight: 600; color: var(--muted); margin-bottom: 10px; }
+  .hops { list-style: none; counter-reset: hop; }
+  .hops li {
+    counter-increment: hop;
+    display: grid; grid-template-columns: 1.6rem 1fr 4.2rem; gap: 4px 10px; align-items: center;
+    padding: 8px 0; border-top: 1px solid var(--line);
+  }
+  .hops li:first-child { border-top: 0; }
+  .hops li::before { content: counter(hop); font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+  .hop-name { font-weight: 600; color: var(--ink); font-size: 0.95rem; }
+  .hop-addr { grid-column: 2 / 3; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+  .hop-ms { font-family: var(--mono); font-size: 0.9rem; text-align: right; color: var(--ink); grid-row: span 2; }
+  .bar { grid-column: 2 / 3; height: 6px; background: var(--tint-trace); border-radius: 3px; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--trace); border-radius: 3px; }
+  .hops li.ocean .bar span { background: var(--blum); }
+  .trace-note { margin-top: 10px; font-size: 0.82rem; color: var(--muted); }
+  .stats { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 18px; }
+  .stat { padding: 10px 16px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
+  .stat b { display: block; font-family: var(--serif); font-size: 1.7rem; color: var(--trace); line-height: 1.1; }
+  .stat span { font-size: 0.85rem; color: var(--muted); }
+
+  /* ── Timeline ── */
+  .timeline { list-style: none; position: relative; padding-left: 26px; }
+  .timeline::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--line); }
+  .timeline li { position: relative; margin-bottom: 18px; }
+  .timeline li::before {
+    content: ""; position: absolute; left: -25px; top: 7px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--scarlet);
+  }
+  .timeline .year { font-family: var(--serif); font-weight: 700; color: var(--scarlet); font-size: 1.05rem; }
+  .timeline p { font-size: 0.98rem; line-height: 1.5; }
+
+  /* ── Conclusion ── */
+  .conclusion { text-align: center; align-items: center; }
+  .conclusion .lead { margin: 0 auto; }
+  .chain { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 10px; align-items: stretch; margin-top: 20px; width: 100%; max-width: 980px; text-align: left; }
+  .chain .arrow { align-self: center; font-size: 1.4rem; color: var(--muted); }
+  .closing-line { margin-top: 20px; font-family: var(--serif); font-style: italic; font-size: 1.1rem; color: var(--muted); }
+
+  /* ── Bottom nav ── */
+  #bottombar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px clamp(16px, 3vw, 40px);
+    background: var(--surface); border-top: 1px solid var(--line);
+  }
+  .nav-btn {
+    font: inherit; font-size: 0.92rem; font-weight: 600;
+    padding: 8px 18px; border-radius: 4px; cursor: pointer;
+    background: transparent; color: var(--ink); border: 1px solid var(--line);
+    min-width: 7.5rem;
+  }
+  .nav-btn.next { background: var(--scarlet); border-color: var(--scarlet); color: #fff; }
+  :root[data-theme="dark"] .nav-btn.next { color: #13171C; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .nav-btn.next { color: #13171C; } }
+  .nav-btn:hover { filter: brightness(0.95); }
+  .nav-btn:disabled { opacity: 0.35; cursor: default; }
+  .dots { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .dot {
+    appearance: none; border: 0; padding: 0; cursor: pointer;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--line);
+  }
+  .dot[aria-selected="true"] { background: var(--scarlet); width: 26px; border-radius: 5px; }
+  .wordmark { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+  .wordmark b { color: var(--scarlet); }
+
+  /* ── Accessibility ── */
+  .skip-link {
+    position: fixed; top: -100px; left: 16px; z-index: 50;
+    background: var(--ink); color: var(--bg);
+    padding: 10px 16px; border-radius: 0 0 4px 4px; text-decoration: none;
+  }
+  .skip-link:focus { top: 0; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  :focus-visible { outline: 3px solid var(--trace); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+
+  @media (max-height: 800px) and (min-width: 861px) {
+    .slide { padding-top: 14px; padding-bottom: 14px; }
+    h2 { font-size: clamp(1.6rem, 2.8vw, 2.2rem); margin-bottom: 12px; }
+    .source { margin-bottom: 8px; }
+    .layers .desc { font-size: 0.84rem; line-height: 1.38; }
+    .layers li { padding: 6px 14px; }
+    .card { padding: 11px 16px; }
+    .goals li { padding: 9px 16px; }
+  }
+  @media (max-width: 860px) {
+    .split, .grid2 { grid-template-columns: 1fr; }
+    .sources-list { grid-template-columns: 1fr; }
+    .chain { grid-template-columns: 1fr; }
+    .chain .arrow { transform: rotate(90deg); justify-self: center; }
+    .deck-title, .wordmark { display: none; }
+    .goals li { grid-template-columns: 1fr; gap: 2px; }
+  }
+</style>
+</head>
+<body>
+<a href="#slides-viewport" class="skip-link">Skip to slide content</a>
+
+<div id="app">
+  <header id="topbar">
+    <p class="deck-title"><b>The Invisible Infrastructure</b> &nbsp;ITI 103, Week 6</p>
+    <div class="top-right">
+      <button type="button" class="theme-btn" id="themeBtn" aria-pressed="false">Dark mode</button>
+      <span class="slide-counter" id="slideCounter">1 of 9</span>
+    </div>
+    <div id="progress" role="progressbar" aria-label="Slide progress" aria-valuemin="1" aria-valuemax="9" aria-valuenow="1"></div>
+  </header>
+
+  <div id="sr-announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <main id="slides-viewport" tabindex="-1" aria-label="Presentation slides">
+
+    <!-- 1 COVER -->
+    <section class="slide active" aria-roledescription="slide" data-title="Cover">
+      <div class="slide-inner">
+        <p class="source plain">A connected reading</p>
+        <h1 class="display">The internet is not a cloud.<br/>It is a world.</h1>
+        <p class="lead">Four sources, one argument. The internet has a <strong>body</strong>, made of physical cables, protocol decisions, geopolitical stakes, and traceable paths that show exactly where your data goes.</p>
+        <ul class="sources-list">
+          <li style="--c:var(--blum)">Andrew Blum<span>TED talk, 2012</span></li>
+          <li style="--c:var(--clark)">David D. Clark<span>DARPA design philosophy, SIGCOMM 1988</span></li>
+          <li style="--c:var(--trace)">NordVPN<span>What is traceroute?</span></li>
+          <li style="--c:var(--reuters)">Reuters<span>The U.S.–China subsea cable fight, 2023</span></li>
+        </ul>
+        <p class="hint">Use <kbd>←</kbd> <kbd>→</kbd> or the buttons below to move between slides.</p>
+      </div>
+    </section>
+
+    <!-- 2 BLUM -->
+    <section class="slide" aria-roledescription="slide" data-title="The physical internet">
+      <div class="slide-inner">
+        <p class="source blum">Source 1. Andrew Blum, TED talk</p>
+        <h2>The internet is physically real</h2>
+        <div class="split">
+          <div>
+            <p class="lead">After a <strong>squirrel chewed through a cable</strong> outside his apartment and killed his connection, journalist Andrew Blum went looking for the actual, physical internet. He found it.</p>
+            <blockquote style="--q:var(--blum)">
+              <p>“When you see these guys going at this cable with a hacksaw, you stop thinking about the Internet as a cloud. It starts to seem like an incredibly physical thing.”</p>
+              <footer>Andrew Blum, TED 2012</footer>
+            </blockquote>
+          </div>
+          <div class="stack-col">
+            <div class="card c-blum">
+              <h3>Data centers</h3>
+              <p>Warehouse-scale buildings, often in remote, cold locations, full of servers handling billions of requests per second.</p>
+            </div>
+            <div class="card c-blum">
+              <h3>Internet exchange points</h3>
+              <p>Buildings where the routers of different networks physically connect through yellow fiber-optic jumper cables.</p>
+            </div>
+            <div class="card c-blum">
+              <h3>Undersea cables</h3>
+              <p>Fiber-optic lines on the ocean floor connecting continents. Surprisingly thin, extraordinarily important.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 CLARK -->
+    <section class="slide" aria-roledescription="slide" data-title="The design philosophy">
+      <div class="slide-inner">
+        <p class="source clark">Source 2. David D. Clark, SIGCOMM 1988 (reprinted in CCR, Jan. 1995)</p>
+        <h2>Why the internet was built to survive</h2>
+        <p class="body" style="margin-bottom:18px; max-width:80ch;">Clark's paper captures the <strong>reasoning behind TCP/IP</strong>. It was written not as a specification but as a look back at decisions already made. The architecture flows from a single ranked list of priorities, and as Clark puts it, “an entirely different network architecture would result if the order were changed.”</p>
+        <ol class="goals">
+          <li>
+            <span class="rank">Goal 1</span>
+            <p><strong>Survivability first.</strong> Communication must continue despite loss of networks or gateways. State is kept at the <em>endpoints</em>, not in the network. Clark calls this <strong>fate-sharing</strong>, meaning it is acceptable to lose state only if the endpoint itself is also lost.</p>
+          </li>
+          <li>
+            <span class="rank">Goal 2</span>
+            <p><strong>Multiple types of service.</strong> TCP and IP were originally one protocol. They were split because different applications need different trade-offs between reliability, latency, and bandwidth. The datagram is a flexible building block, not a service in itself.</p>
+          </li>
+          <li>
+            <span class="rank">Goal 3</span>
+            <p><strong>Accommodate a variety of networks.</strong> The only assumption is that the network can carry a packet of reasonable size with imperfect reliability. That is why TCP/IP runs over Ethernet, satellite, packet radio, serial links, and undersea fiber.</p>
+          </li>
+          <li class="last">
+            <span class="rank">Goal 7 (last)</span>
+            <p><strong>Accountability.</strong> “During wartime, one is less concerned with detailed accounting of resources used than with mustering whatever resources are available.” This low priority still haunts internet governance today.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 4 STACK -->
+    <section class="slide" aria-roledescription="slide" data-title="The protocol stack">
+      <div class="slide-inner">
+        <p class="source clark">Grounded in Clark 1988 and the TCP/IP architecture</p>
+        <h2>The internet protocol stack</h2>
+        <div class="split center">
+          <ol class="layers" reversed aria-label="Protocol layers, top to bottom">
+            <li>
+              <span class="num" aria-hidden="true">5</span>
+              <div><p class="name">Application</p><p class="protos">HTTP, HTTPS, DNS, SMTP, FTP, SSH</p>
+              <p class="desc">What the user sees. Protocols that define how applications communicate, such as a browser, an email client, or a streaming service.</p></div>
+            </li>
+            <li>
+              <span class="num" aria-hidden="true">4</span>
+              <div><p class="name">Transport</p><p class="protos">TCP, UDP</p>
+              <p class="desc">Clark's key split. <strong>TCP</strong> gives reliable, ordered delivery (websites, files). <strong>UDP</strong> gives fast, lossy delivery (video calls, DNS). Both sit on top of the datagram.</p></div>
+            </li>
+            <li class="focus">
+              <span class="num" aria-hidden="true">3</span>
+              <div><p class="name">Network (IP)</p><p class="protos">IPv4, IPv6, ICMP, BGP</p>
+              <p class="desc">The <strong>datagram</strong>. Each packet is addressed and routed independently through gateways. This is Clark's core insight, and it is what traceroute probes hop by hop.</p></div>
+            </li>
+            <li>
+              <span class="num" aria-hidden="true">2</span>
+              <div><p class="name">Data link</p><p class="protos">Ethernet, Wi-Fi (802.11), PPP</p>
+              <p class="desc">Node-to-node delivery on a single network segment. Handles MAC addressing, framing, and error detection between neighboring devices.</p></div>
+            </li>
+            <li>
+              <span class="num" aria-hidden="true">1</span>
+              <div><p class="name">Physical</p><p class="protos">Fiber, copper, radio, satellite</p>
+              <p class="desc">Blum's world. The actual cables, including hair-thin glass fibers in 9,000-mile undersea cables, that carry pulses of light encoding every bit.</p></div>
+            </li>
+          </ol>
+          <div class="stack-col">
+            <blockquote style="margin-top:0; --q:var(--clark)">
+              <p style="font-size:1.1rem">“The Internet architecture achieves this flexibility by making a minimum set of assumptions about the function which the net will provide. The basic assumption is that the network can transport a packet or datagram.”</p>
+              <footer>Clark, §6 Varieties of Networks</footer>
+            </blockquote>
+            <div class="card c-clark">
+              <p class="label">Clark's key design move</p>
+              <h3>Why IP and TCP were separated</h3>
+              <p>Splitting them let IP be the minimal, universal substrate, while TCP added reliability <em>only for those who needed it</em>. UDP proves the point. Sometimes you don't.</p>
+            </div>
+            <div class="card c-reuters">
+              <p class="label">The stack in the real world</p>
+              <h3>Each layer maps to something physical or political</h3>
+              <p>Layer 1 is Blum's undersea cables. Layer 3 is the routes Reuters' Team Telecom wants to block. Layer 4 is the reliability Clark debated. The stack is not just technical. It is geopolitical.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 TRACEROUTE -->
+    <section class="slide" aria-roledescription="slide" data-title="Following the packet">
+      <div class="slide-inner">
+        <p class="source trace">Source 3. NordVPN, What is traceroute?</p>
+        <h2>Every packet leaves a trail</h2>
+        <div class="split center">
+          <div>
+            <p class="body"><strong>Traceroute</strong> is a network diagnostic tool that maps every intermediate hop a packet makes on its journey. Each hop is a physical router, often in a specific city, revealing exactly which real-world infrastructure your data crosses.</p>
+            <p class="body">It makes Clark's abstract <strong>datagram model</strong> visible. Packets really do travel independently, hop by hop, through physical nodes, the very nodes Blum photographed on his travels.</p>
+            <div class="stats">
+              <div class="stat"><b>15–30</b><span>typical hops on a long route</span></div>
+              <div class="stat"><b>128 ms</b><span>total in this example trace</span></div>
+            </div>
+          </div>
+          <div class="trace-box">
+            <h3 id="trace-h">Example trace, with latency at each hop</h3>
+            <ol class="hops" aria-labelledby="trace-h">
+              <li><span class="hop-name">Your device</span><span class="hop-ms">0 ms</span><span class="hop-addr">192.168.1.2</span></li>
+              <li><span class="hop-name">ISP gateway</span><span class="hop-ms">4 ms</span><span class="bar" aria-hidden="true"><span style="width:3%"></span></span></li>
+              <li><span class="hop-name">Regional node</span><span class="hop-ms">18 ms</span><span class="bar" aria-hidden="true"><span style="width:14%"></span></span></li>
+              <li><span class="hop-name">Exchange point, Frankfurt</span><span class="hop-ms">42 ms</span><span class="bar" aria-hidden="true"><span style="width:33%"></span></span></li>
+              <li class="ocean"><span class="hop-name">Backbone router, undersea segment</span><span class="hop-ms">110 ms</span><span class="bar" aria-hidden="true"><span style="width:86%"></span></span></li>
+              <li><span class="hop-name">Destination</span><span class="hop-ms">128 ms</span><span class="hop-addr">93.184.216.34</span></li>
+            </ol>
+            <p class="trace-note">The biggest jump comes at the undersea segment, where light has to cross an ocean.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 REUTERS -->
+    <section class="slide" aria-roledescription="slide" data-title="The geopolitical stakes">
+      <div class="slide-inner">
+        <p class="source reuters">Source 4. Reuters, the U.S.–China subsea cable fight</p>
+        <h2>The physical internet is a battlefield</h2>
+        <div class="split">
+          <div>
+            <p class="body">Reuters' investigation showed that the abstract internet has become a <strong>geopolitical flashpoint</strong>. The U.S. government's “Team Telecom” works to block any undersea cable that could connect U.S. territory to mainland China or Hong Kong, citing espionage risks.</p>
+            <p class="body">China, meanwhile, has invested hundreds of millions in its own undersea cable network through state-owned firms and the <strong>Digital Silk Road</strong>, a direct counter to Western cable dominance.</p>
+            <blockquote style="--q:var(--reuters)">
+              <p>“Undersea cables have become a weapon of war in this new Cold War between China and the U.S.”</p>
+              <footer>Joe Brock, Reuters reporter, 2023</footer>
+            </blockquote>
+          </div>
+          <div class="stack-col">
+            <div class="card c-reuters">
+              <p class="label">The infrastructure</p>
+              <h3>About 560 active cable systems</h3>
+              <p>Carrying roughly 99% of international internet traffic, across nearly 1.4 million km of cable on the ocean floor.</p>
+            </div>
+            <div class="card c-reuters">
+              <p class="label">The U.S. response</p>
+              <h3>Team Telecom's veto</h3>
+              <p>The U.S. blocked the Pacific Light Cable Network to Hong Kong. Meta and Google had to reroute their Echo and Bifrost cables to avoid the South China Sea.</p>
+            </div>
+            <div class="card c-reuters">
+              <p class="label">The vulnerability</p>
+              <h3>Accidental and intentional cuts</h3>
+              <p>Ship anchors, fishing trawlers, and possibly state-sponsored sabotage can sever cables that carry entire nations' internet traffic.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 SYNTHESIS -->
+    <section class="slide" aria-roledescription="slide" data-title="Synthesis">
+      <div class="slide-inner">
+        <p class="source plain">Connecting the sources</p>
+        <h2>One internet, four perspectives</h2>
+        <p class="body" style="margin-bottom:20px; max-width:80ch;">Together the four sources make one argument. The internet was <strong>designed</strong> to be resilient, <strong>built</strong> from glass and steel, made <strong>navigable</strong> through diagnostics, and is now <strong>contested</strong> as sovereign territory.</p>
+        <div class="grid2">
+          <div class="card c-clark">
+            <p class="label">Clark → Blum</p>
+            <h3>Protocol becomes infrastructure</h3>
+            <p>Clark's datagram design (stateless gateways, endpoints holding their own state, packets routed independently) is exactly what Blum photographed. The fiber, exchange points, and landing stations carry out that philosophy at planetary scale.</p>
+          </div>
+          <div class="card c-blum">
+            <p class="label">Blum → Traceroute</p>
+            <h3>Infrastructure becomes visible</h3>
+            <p>Traceroute is a window into Blum's physical world. Each hop in a trace is a real node, a router in a rack in a building in a city, that Blum could walk into and touch.</p>
+          </div>
+          <div class="card c-trace">
+            <p class="label">Traceroute → Reuters</p>
+            <h3>Visibility reveals vulnerability</h3>
+            <p>When a trace crosses an undersea segment, it exposes the chokepoints Reuters investigated. The jumps in latency correspond to cables that states now treat as weapons.</p>
+          </div>
+          <div class="card c-reuters">
+            <p class="label">Reuters → Clark</p>
+            <h3>Survivability meets geopolitics</h3>
+            <p>Clark ranked accountability last, noting that “the problem received very little attention during the early stages of the design.” That gap now defines the crisis. Undersea cables are owned by private consortia, governed by no single authority, and increasingly weaponized by states.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 TENSIONS -->
+    <section class="slide" aria-roledescription="slide" data-title="Key tensions">
+      <div class="slide-inner">
+        <p class="source plain">The central contradiction</p>
+        <h2>Designed for openness, contested for control</h2>
+        <div class="split">
+          <ol class="timeline">
+            <li><span class="year">1973</span><p><strong>Cerf and Kahn</strong> envision TCP/IP, a protocol to interconnect any network, designed to survive war.</p></li>
+            <li><span class="year">1988</span><p><strong>Clark's SIGCOMM paper.</strong> “Survivability was put as a first goal, and accountability as a last goal.” It explains after the fact why TCP/IP is built the way it is, from ranked military priorities rather than specs.</p></li>
+            <li><span class="year">2012</span><p><strong>Blum's TED talk.</strong> The cloud is actually a network of buildings, copper, and fiber. The internet has a physical address.</p></li>
+            <li><span class="year">2023</span><p><strong>Reuters investigation.</strong> The physical internet is a geopolitical theater, with the U.S. and China waging a cold war on the ocean floor.</p></li>
+          </ol>
+          <div class="stack-col">
+            <div class="card c-clark">
+              <p class="label">The core tension</p>
+              <h3>Global architecture, national control</h3>
+              <p>Clark built an architecture that crosses borders by design. Reuters shows nations now drawing borders through it, underwater.</p>
+            </div>
+            <div class="card c-trace">
+              <p class="label">The traceroute lesson</p>
+              <h3>Every path is political</h3>
+              <p>A traceroute from New York to Singapore reveals which cables your data crosses. Each of those cables is now a diplomatic negotiation, a security risk, and a potential target.</p>
+            </div>
+            <div class="card c-blum">
+              <p class="label">The Blum insight</p>
+              <h3>Invisibility means vulnerability</h3>
+              <p>Because we treat the internet as abstract, we ignore its physical stakes. If a squirrel can kill your internet, a state actor certainly can.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 CONCLUSION -->
+    <section class="slide" aria-roledescription="slide" data-title="Conclusion">
+      <div class="slide-inner conclusion">
+        <p class="source plain" style="align-self:center">Conclusion</p>
+        <h1 class="display" style="font-size:clamp(2rem,3.6vw,3.2rem); max-width:24ch; margin-bottom:16px;">The internet is infrastructure, philosophy, and geopolitics at once</h1>
+        <p class="lead">Clark gave us the rules. Blum showed us the body. Traceroute lets us follow the connection. And Reuters revealed that other powers are watching the same veins and deciding whether to cut them.</p>
+        <div class="chain">
+          <div class="card c-clark"><h3>Clark</h3><p>Survivability first, accountability last. Fate-sharing. The datagram as a building block, not a service.</p></div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="card c-blum"><h3>Blum and traceroute</h3><p>Physical nodes, real cables, and visible, traceable paths through real geography.</p></div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="card c-reuters"><h3>Reuters</h3><p>Nations claim the seabed. An architecture of openness becomes a theater of control.</p></div>
+        </div>
+        <p class="closing-line">The cloud is not neutral. The cloud is not weightless. The cloud is not free.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <nav id="bottombar" aria-label="Slide controls">
+    <button type="button" class="nav-btn prev" id="prevBtn">← Previous</button>
+    <div class="dots" id="dots" role="tablist" aria-label="Jump to slide"></div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <span class="wordmark"><b>Rutgers</b> SC&amp;I</span>
+      <button type="button" class="nav-btn next" id="nextBtn">Next →</button>
+    </div>
+  </nav>
+</div>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  const dots = document.getElementById('dots');
+  const counter = document.getElementById('slideCounter');
+  const progress = document.getElementById('progress');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const announcer = document.getElementById('sr-announcer');
+  let current = 0;
+
+  progress.setAttribute('aria-valuemax', total);
+
+  slides.forEach((s, i) => {
+    s.id = 'slide-' + (i + 1);
+    s.setAttribute('aria-label', 'Slide ' + (i + 1) + ' of ' + total + ': ' + s.dataset.title);
+    s.setAttribute('role', 'tabpanel');
+    const d = document.createElement('button');
+    d.type = 'button';
+    d.className = 'dot';
+    d.setAttribute('role', 'tab');
+    d.setAttribute('aria-controls', s.id);
+    d.setAttribute('aria-label', 'Slide ' + (i + 1) + ': ' + s.dataset.title);
+    d.addEventListener('click', () => goTo(i, true));
+    dots.appendChild(d);
+  });
+
+  function goTo(n, moveFocus) {
+    current = Math.max(0, Math.min(n, total - 1));
+    slides.forEach((s, i) => {
+      const on = i === current;
+      s.classList.toggle('active', on);
+      s.setAttribute('aria-hidden', on ? 'false' : 'true');
+      if (on) s.scrollTop = 0;
+    });
+    dots.querySelectorAll('.dot').forEach((d, i) => {
+      d.setAttribute('aria-selected', i === current ? 'true' : 'false');
+      d.tabIndex = i === current ? 0 : -1;
+    });
+    const title = slides[current].dataset.title;
+    counter.textContent = (current + 1) + ' of ' + total;
+    progress.style.width = ((current + 1) / total * 100) + '%';
+    progress.setAttribute('aria-valuenow', current + 1);
+    progress.setAttribute('aria-valuetext', 'Slide ' + (current + 1) + ' of ' + total + ': ' + title);
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+    nextBtn.textContent = current === total - 1 ? 'End' : 'Next →';
+    announcer.textContent = 'Slide ' + (current + 1) + ' of ' + total + ': ' + title;
+    if (moveFocus) {
+      const h = slides[current].querySelector('h1, h2');
+      if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
+    }
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1, false));
+  nextBtn.addEventListener('click', () => goTo(current + 1, false));
+
+  document.addEventListener('keydown', (e) => {
+    const t = e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA' || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); goTo(current + 1, false); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goTo(current - 1, false); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0, false); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1, false); }
+  });
+
+  let x0 = null;
+  document.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 60) goTo(current + (dx < 0 ? 1 : -1), false);
+    x0 = null;
+  }, { passive: true });
+
+  // Theme toggle (kept in memory only, so the file stays Canvas-safe)
+  const root = document.documentElement;
+  const themeBtn = document.getElementById('themeBtn');
+  const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  function isDark() {
+    const t = root.getAttribute('data-theme');
+    return t ? t === 'dark' : sysDark.matches;
+  }
+  function syncThemeBtn() {
+    const dark = isDark();
+    themeBtn.textContent = dark ? 'Light mode' : 'Dark mode';
+    themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+  }
+  themeBtn.addEventListener('click', () => {
+    root.setAttribute('data-theme', isDark() ? 'light' : 'dark');
+    syncThemeBtn();
+  });
+  syncThemeBtn();
+
+  goTo(0, false);
+})();
+</script>
+</body>
+</html>
